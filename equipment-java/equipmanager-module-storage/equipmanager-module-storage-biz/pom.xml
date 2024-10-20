@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>cn.newness.boot</groupId>
+        <artifactId>equipmanager-module-storage</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>equipmanager-module-storage-biz</artifactId>
+
+    <name>${project.artifactId}</name>
+
+    <description>
+        零件仓储模块相关业务流程
+    </description>
+
+    <dependencies>
+        <!--其对应的api模块-->
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>equipmanager-module-storage-api</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <!--flowable工作流-->
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter-process</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!--系统模块暴漏接口-->
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>newness-module-system-api</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <!-- 业务组件 -->
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>newness-spring-boot-starter-biz-data-permission</artifactId>
+        </dependency>
+        <!-- Web 相关 -->
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>newness-spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>newness-spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- DB 相关 -->
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>newness-spring-boot-starter-mybatis</artifactId>
+        </dependency>
+        <!-- 工具类相关 -->
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>newness-spring-boot-starter-excel</artifactId>
+        </dependency>
+    </dependencies>
+</project>

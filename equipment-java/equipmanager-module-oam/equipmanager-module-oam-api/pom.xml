@@ -1,0 +1,25 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>cn.newness.boot</groupId>
+        <artifactId>equipmanager-module-oam</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>equipmanager-module-oam-api</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+
+    <description>
+        设备运维模块向外暴漏接口
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>cn.newness.boot</groupId>
+            <artifactId>newness-common</artifactId>
+        </dependency>
+    </dependencies>
+</project>

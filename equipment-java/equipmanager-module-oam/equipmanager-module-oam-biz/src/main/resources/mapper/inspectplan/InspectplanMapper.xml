@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.newness.imip.module.oam.dal.mysql.inspectplan.InspectplanMapper">
+    <resultMap id="InspectplanAppVO" type="cn.newness.imip.module.oam.controller.app.inspectplan.vo.InspectplanAppVO">
+        <result property="id" column="id"/>
+        <result property="inspectionType" column="inspection_type"/>
+        <result property="inspectionCycle" column="inspection_cycle"/>
+        <result property="name" column="name"/>
+        <result property="equiplocationId" column="equiplocation_id"/>
+        <result property="equiplocationName" column="equiplocation_name"/>
+        <result property="detail" column="detail"/>
+    </resultMap>
+    <sql id="planList">
+        SELECT p.id, p.inspection_type, p.inspection_cycle, p.`name`, p.equiplocation_id, p.equiplocation_name, p.detail
+        FROM equip_inspection_inspectplan AS p
+    </sql>
+    <select id="getInspectplanListForApp" resultMap="InspectplanAppVO">
+        <include refid="planList"/>
+        <where>
+            p.deleted = 0 AND p.`status` = 0
+            <if test="id != null and id != ''">and p.id = #{id}</if>
+            <if test="inspectionType != null">and p.inspection_type = #{inspectionType}</if>
+            <if test="name != null and name != ''">and p.name like concat('%', #{name}, '%')</if>
+            <if test="equiplocationId != null and equiplocationId != ''">and p.equiplocation_id = #{equiplocationId}</if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+    <select id="getPlanNameBySubstanceId" resultType="java.lang.String">
+        SELECT p.`name`
+        FROM equip_inspection_inspectplan AS p
+        LEFT JOIN equip_inspection_substance_map AS m
+        ON p.id = m.inspectionplan_id
+        WHERE m.deleted =0 AND p.deleted =0 AND m.inspection_substance_id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>newness</artifactId>
+    <groupId>cn.newness.boot</groupId>
+    <version>${revision}</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <modules>
+    <module>equipmanager-module-storage-biz</module>
+    <module>equipmanager-module-storage-api</module>
+  </modules>
+  <artifactId>equipmanager-module-storage</artifactId>
+  <packaging>pom</packaging>
+
+  <name>${project.artifactId}</name>
+
+  <description>
+    零件仓储模块，包含：...
+  </description>
+</project>

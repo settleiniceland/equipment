@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.newness.imip.module.oam.dal.mysql.inspectionsubstance.InspectionSubstanceMapper">
+    <resultMap id="InspectionSubstanceRespVO" type="cn.newness.imip.module.oam.controller.admin.inspectionsubstance.vo.InspectionSubstanceRespVO">
+        <result property="id" column="id"/>
+        <result property="equipId" column="equip_id"/>
+        <result property="equipName" column="equip_name"/>
+        <result property="equipSpecification" column="equip_specification"/>
+        <result property="details" column="details"/>
+        <result property="creator" column="creator"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updater" column="updater"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <sql id="selectAllSubstanceByRespVO">
+        SELECT sub.id,sub.equip_id,sub.equip_name,sub.equip_specification,sub.details,sub.creator,sub.create_time,sub.updater,sub.update_time
+        FROM equip_inspection_substance as sub
+    </sql>
+    <sql id="selectAllSubstanceCountByRespVO">
+        SELECT COUNT(sub.id)
+        FROM equip_inspection_substance as sub
+    </sql>
+    <sql id="planInclude">
+        INNER JOIN equip_inspection_substance_map as map
+        ON sub.id = map.inspection_substance_id
+        <where>
+            sub.deleted = 0 AND `map`.deleted = 0
+            <if test="planId != null and planId !=''">and `map`.inspectionplan_id = #{planId}</if>
+            <if test="equipId != null and equipId !=''">and sub.equip_id = #{equipId}</if>
+            <if test="details !=null and details !=''">and sub.details like concat('%', #{details}, '%')</if>
+        </where>
+    </sql>
+    <sql id="planExclude">
+        <where>
+            sub.deleted = 0
+            AND sub.id NOT IN(
+                SELECT map.inspection_substance_id from equip_inspection_substance_map AS map
+               <where>
+                   map.deleted = 0
+                   <if test="planId != null and planId !=''">and `map`.inspectionplan_id = #{planId}</if>
+               </where>
+            )
+            <if test="equipId != null and equipId !=''">and sub.equip_id = #{equipId}</if>
+            <if test="details !=null and details !=''">and sub.details like concat('%', #{details}, '%')</if>
+        </where>
+    </sql>
+    <select id="selectPageByPlanId" resultMap="InspectionSubstanceRespVO">
+        <include refid="selectAllSubstanceByRespVO"/>
+        <include refid="planInclude"/>
+        ORDER BY sub.equip_name
+        <if test="pageSize != -1">
+            limit ${(pageNo - 1) * pageSize},#{pageSize}
+        </if>
+    </select>
+
+    <select id="selectPageByPlanIdForExcel" resultMap="InspectionSubstanceRespVO">
+        <include refid="selectAllSubstanceByRespVO"/>
+        <include refid="planInclude"/>
+        ORDER BY sub.equip_name,sub.details
+    </select>
+
+    <select id="selectAddPageByPlanId" resultMap="InspectionSubstanceRespVO">
+        <include refid="selectAllSubstanceByRespVO"/>
+        <include refid="planExclude"/>
+        ORDER BY sub.equip_name,sub.details
+        limit ${(pageNo - 1) * pageSize},#{pageSize}
+    </select>
+    <select id="selectAddPageCountByPlanId" resultType="java.lang.Long">
+        <include refid="selectAllSubstanceCountByRespVO"/>
+        <include refid="planExclude"/>
+    </select>
+</mapper>

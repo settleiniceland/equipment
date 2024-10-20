@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.newness.imip.module.property.dal.mysql.equipmentprofile.EquipmentprofileMapper">
+    <resultMap id="EquipmentprofileRespVO" type="cn.newness.imip.module.property.controller.admin.equipmentprofile.vo.EquipmentprofileRespVO">
+        <result property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="equipId" column="equip_id"/>
+        <result property="equipName" column="equip_name"/>
+        <result property="equipSpecification" column="equip_specification"/>
+    </resultMap>
+</mapper>

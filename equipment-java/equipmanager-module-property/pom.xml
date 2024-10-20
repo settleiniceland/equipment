@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>cn.newness.boot</groupId>
+    <artifactId>newness</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <modules>
+    <module>equipmanager-module-property-api</module>
+    <module>equipmanager-module-property-biz</module>
+  </modules>
+  <artifactId>equipmanager-module-property</artifactId>
+  <packaging>pom</packaging>
+
+  <name>${project.artifactId}</name>
+
+  <description>
+    设备资产模块，包含：设备档案表、设备表、
+    设备安装位置表、设备类别表、生产厂家表；
+  </description>
+</project>
