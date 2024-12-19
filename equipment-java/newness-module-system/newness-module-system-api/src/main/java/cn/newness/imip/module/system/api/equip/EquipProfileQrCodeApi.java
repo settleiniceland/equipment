@@ -7,5 +7,5 @@ package cn.newness.imip.module.system.api.equip;
  * @Description
  */
 public interface EquipProfileQrCodeApi {
-    String createAndUploadQrCode(String equipProfileId,String equipName,String equipCode);
+    String createAndUploadQrCode(String equipProfileId,String equipName,String equipCode,String text);
 }

@@ -20,6 +20,15 @@
             <el-option v-for="dict in statusDictDatas" :key="parseInt(dict.value)" :label="dict.label" :value="parseInt(dict.value)"/>
           </el-select>
         </el-form-item>
+        <el-form-item label="点检区域" prop="equiplocationId">
+          <TreeSelect
+            v-model="formData.equiplocationId"
+            :options="installlocationTree"
+            :normalizer="normalizer"
+            placeholder="请选择位置"
+            class="treeSelectCSS"
+          />
+        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input type="textarea" :rows="9" v-model="formData.remark" :placeholder='$t("message.Button.remark")' />
         </el-form-item>
@@ -34,6 +43,7 @@
 
 <script>
   import * as MaintainPlanApi from '@/api/oam/maintainplan';
+  import * as InstalllocationApi from '@/api/property/installlocation';
   import * as EquipmentprofileApi from '@/api/property/equipmentprofile';
   import TreeSelect from "@riophae/vue-treeselect";
   import "@riophae/vue-treeselect/dist/vue-treeselect.css";
@@ -54,6 +64,8 @@
           name: undefined,
           executeDeptId: undefined,
           executeDeptName: undefined,
+          equiplocationId: undefined,
+          equiplocationName: undefined,
           status: 0,
           remark: undefined,
         },
@@ -62,9 +74,11 @@
           name: [{ required: true, message: '计划名称不能为空', trigger: 'blur' }],
           executeDeptId: [{ required: true, message: '执行部门id不能为空', trigger: 'blur' }],
           executeDeptName: [{ required: true, message: '执行部门名称不能为空', trigger: 'blur' }],
+          equiplocationId: [{ required: true, message: '保养地区不能为空', trigger: 'blur' }],
           status: [{ required: true, message: '计划状态不能为空', trigger: 'blur' }],
         },
         deptTree:[],//部门树
+        installlocationTree: [],//设备安装位置树型结构
       };
     },
     //传递来的参数
@@ -121,6 +135,8 @@
           name: undefined,
           executeDeptId: undefined,
           executeDeptName: undefined,
+          equiplocationId: undefined,
+          equiplocationName: undefined,
           status: 0,
           remark: undefined,
         };
@@ -131,6 +147,10 @@
         this.deptTree = [];
         const deptRes = await EquipmentprofileApi.getAllDeptList();
         this.deptTree = this.handleTree(deptRes.data,'id');
+        //获取安装位置树形结构
+        this.installlocationTree = [];
+        const InstalllocationRes = await InstalllocationApi.getInstalllocationList();
+        this.installlocationTree = this.handleTreeForString(InstalllocationRes.data,'id','supId');
       },
       /** 转换传统数据数据结构 */
       normalizer(node) {

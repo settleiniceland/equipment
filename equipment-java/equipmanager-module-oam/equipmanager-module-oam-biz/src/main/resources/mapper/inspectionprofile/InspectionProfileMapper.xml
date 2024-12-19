@@ -10,11 +10,39 @@
      -->
 
     <select id="getNewestProfileList" resultType="cn.newness.imip.module.oam.dal.dataobject.inspectionprofile.InspectionProfileDO">
-        SELECT inspection_plan_id,MAX(inspection_date) as inspection_date  FROM equip_inspection_profile
-        WHERE inspection_plan_id IN
-        <foreach collection="idList" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-        GROUP BY inspection_plan_id
+        SELECT
+            t1.inspection_plan_id,
+            t1.plan_execute_count,
+            t1.inspection_date
+        FROM (
+            SELECT
+                inspection_plan_id,
+                plan_execute_count,
+                MIN(inspection_date) AS inspection_date
+            FROM
+                equip_inspection_profile
+            WHERE
+                inspection_plan_id IN
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            GROUP BY
+                inspection_plan_id, plan_execute_count
+        ) t1
+        JOIN (
+            SELECT
+                inspection_plan_id,
+                MAX(plan_execute_count) AS max_plan_execute_count
+            FROM
+                equip_inspection_profile
+            WHERE
+                inspection_plan_id IN
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            GROUP BY
+                inspection_plan_id
+        ) t2
+        ON t1.inspection_plan_id = t2.inspection_plan_id AND t1.plan_execute_count = t2.max_plan_execute_count;
     </select>
 </mapper>

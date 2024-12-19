@@ -35,6 +35,10 @@ public class InspectionProfileDO extends
      */
     private String inspectionPlanId;
     /**
+     * 计划执行次数
+     */
+    private Integer planExecuteCount;
+    /**
      * 点检计划名称【点检计划表中来】
      */
     private String inspectionPlanName;

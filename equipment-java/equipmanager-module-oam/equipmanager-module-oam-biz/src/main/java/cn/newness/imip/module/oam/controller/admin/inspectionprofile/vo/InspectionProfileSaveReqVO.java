@@ -18,6 +18,9 @@ public class InspectionProfileSaveReqVO {
     @Schema(description = "点检计划id", example = "15588")
     private String inspectionPlanId;
 
+    @Schema(description = "计划执行次数", example = "15588")
+    private Integer planExecuteCount;
+
     @Schema(description = "点检计划名称【点检计划表中来】", example = "李四")
     private String inspectionPlanName;
 

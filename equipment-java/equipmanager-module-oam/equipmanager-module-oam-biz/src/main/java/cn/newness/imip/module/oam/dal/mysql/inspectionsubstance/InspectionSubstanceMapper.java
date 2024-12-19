@@ -24,6 +24,7 @@ public interface InspectionSubstanceMapper extends BaseMapperX<InspectionSubstan
                 .likeIfPresent(InspectionSubstanceDO::getEquipName, reqVO.getEquipName())
                 .likeIfPresent(InspectionSubstanceDO::getEquipSpecification, reqVO.getEquipSpecification())
                 .likeIfPresent(InspectionSubstanceDO::getDetails, reqVO.getDetails())
+                .likeIfPresent(InspectionSubstanceDO::getStandard, reqVO.getStandard())
                 .eqIfPresent(InspectionSubstanceDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(InspectionSubstanceDO::getCreateTime, reqVO.getCreateTime())
                 .eqIfPresent(InspectionSubstanceDO::getUpdater, reqVO.getUpdater())

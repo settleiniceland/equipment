@@ -1,6 +1,8 @@
 package cn.newness.imip.module.property.api;
 
+import cn.newness.imip.framework.common.util.object.BeanUtils;
 import cn.newness.imip.module.property.api.dto.EquipmentProfileDto;
+import cn.newness.imip.module.property.controller.admin.equipmentprofile.vo.EquipmentprofileListReqVO;
 import cn.newness.imip.module.property.dal.dataobject.equipmentprofile.EquipmentprofileDO;
 import cn.newness.imip.module.property.dal.mysql.equipmentprofile.EquipmentprofileMapper;
 import cn.newness.imip.module.property.service.EquipmentprofileService;
@@ -40,5 +42,11 @@ public class EquipmentProfileApiImpl implements EquipmentProfileApi{
     @Override
     public EquipmentProfileDto getSupAttribute2EquipmentProfileDto(String equipmentProfileId) {
         return equipmentprofileService.getSupAttribute2EquipmentProfileDto(equipmentProfileId);
+    }
+
+    @Override
+    public List<EquipmentProfileDto> getEquipmentProfileList(EquipmentProfileDto equipmentProfileDto) {
+        List<EquipmentprofileDO> equipmentprofileList = equipmentprofileService.getEquipmentprofileList(BeanUtils.toBean(equipmentProfileDto, EquipmentprofileListReqVO.class));
+        return BeanUtils.toBean(equipmentprofileList, EquipmentProfileDto.class);
     }
 }

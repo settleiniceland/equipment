@@ -46,22 +46,22 @@ spring:
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://20.11.12.55:3306/equipment-manage?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+          url: jdbc:mysql://10.1.12.55:3306/equipment-manage?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
           username: root
           password: 123456
         slave: # 模拟从库，可根据自己需要修改
           lazy: true # 开启懒加载，保证启动速度
-          url: jdbc:mysql://20.11.12.55:3306/equipment-manage?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+          url: jdbc:mysql://10.1.12.55:3306/equipment-manage?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
           username: root
           password: 123456
 
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   data:
     redis:
-      host: 192.168.137.200 # 地址
+      host: 10.1.12.55 # 地址
       port: 6379 # 端口
       database: 1 # 数据库索引
-      password: 12345ssdlh # 密码，建议生产环境开启
+      password: ynmes@123 # 密码，建议生产环境开启
 
 --- #################### 定时任务相关配置 ####################
 
@@ -127,7 +127,9 @@ management:
       base-path: /actuator # Actuator 提供的 API 接口的根目录。默认为 /actuator
       exposure:
         include: '*' # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 * ，可以开放所有端点。
-
+# 临时文件存放目录
+temporary:
+  directory: E:\User\music\Cache
 # Spring Boot Admin 配置项
 spring:
   boot:

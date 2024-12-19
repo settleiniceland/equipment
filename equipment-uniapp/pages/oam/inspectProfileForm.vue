@@ -1,11 +1,14 @@
 <template>
 	<view style="margin: 0 5%; max-height: 90vh; overflow-y: auto;">
 		<view class="uni-box-head">
-			<uni-title type="h1" align="center" :title="plan.name"></uni-title>
+			<uni-title type="h1" align="center" :title="commonDetail.inspectionPlanName"></uni-title>
 		</view>
 		<uni-section title="基础信息" type="line">
 			<uni-card>
 				<uni-forms :modelValue="commonDetail">
+					<uni-forms-item label="设备">
+						<input class="input-border" type="text" v-model="commonDetail.equipName" disabled/>
+					</uni-forms-item>
 					<uni-forms-item label="点检日期" name="inspectionDate">
 						<button class="input-border" @click="showDatePicker = !showDatePicker">{{commonDetail.inspectionDate?commonDetail.inspectionDate:"请选择时间"}}</button>
 					</uni-forms-item>
@@ -13,7 +16,13 @@
 						<input class="input-border" type="text" v-model="commonDetail.inspectionUsers" placeholder="请输入点检人" />
 					</uni-forms-item>
 					<uni-forms-item label="区域负责人" name="dutyUsers">
-						<input class="input-border" type="text" v-model="commonDetail.dutyUsers" placeholder="请输入区域负责人" />
+						<input class="input-border" type="text" v-model="commonDetail.dutyUsers" placeholder="请输入区域负责人" disabled/>
+					</uni-forms-item>
+					<uni-forms-item label="具体设备" name="equipProfileId">
+						<button class="input-border" @click="showPicker">{{commonDetail.equipProfileId?commonDetail.equipCode+commonDetail.equipProfileName:'请选择设备'}}</button>
+					</uni-forms-item>
+					<uni-forms-item label="是否停机" name="isStop">
+						<uni-data-checkbox mode="button" style="background-color: bisque;" v-model="commonDetail.isStop" :localdata="statusType"/>
 					</uni-forms-item>
 				</uni-forms>
 			</uni-card>
@@ -22,17 +31,14 @@
 			<uni-card>
 				<view v-for="(item, index) in planDetailProfileList" :key="index">
 					<uni-forms :modelValue="item">
-						<uni-forms-item label="具体设备" name="equipProfileId">
-							<button class="input-border" @click="showPicker(index,item.equipSelectList)">{{item.equipProfileId?item.equipCode+item.equipProfileName:'请选择设备'}}</button>
-						</uni-forms-item>
 						<uni-forms-item label="点检内容" name="details">
 							<text>{{item.details}}</text>
 						</uni-forms-item>
 						<uni-forms-item label="结果" name="result">
-							<uni-data-checkbox v-model="item.result" :localdata="resultType"/>
+							<uni-data-checkbox mode="button" style="background-color: bisque;" v-model="item.result" :localdata="resultType"/>
 						</uni-forms-item>
-						<uni-forms-item v-if="item.equipCode !== ''" label="现场图片" name="resultPhotos">
-							<uni-section title="调用相机拍照上传图片" type="line">
+						<uni-forms-item v-if="commonDetail.equipCode !== ''" label="现场图片" name="resultPhotos">
+							<uni-section title="调用相机拍照上传图片" type="line" style="background-color: bisque;">
 								<!-- todo 此块需要安卓机实测，较浪费时间，最后搞 -->
 								<view class="example-body">
 									<uni-file-picker 
@@ -40,14 +46,11 @@
 										limit="9" 
 										title="最多选择9张图片"
 										:auto-upload="false"
-										@select="(event) => addfile(event, item.equipCode)"
-										@delete="(event) => delfile(event, item.equipCode)"
+										@select="(event) => addfile(event, item.id)"
+										@delete="(event) => delfile(event, item.id)"
 									/>
 								</view>
 							</uni-section>
-						</uni-forms-item>
-						<uni-forms-item v-if="item.result === 2" label="是否停机" name="isStop">
-							<uni-data-checkbox v-model="item.isStop" :localdata="statusType"/>
 						</uni-forms-item>
 						<uni-forms-item label="结果详情" name="resultDetail">
 							<textarea rows="9" class="textarea-border" v-model="item.resultDetail" placeholder="请输入详情"></textarea>
@@ -71,13 +74,27 @@
 	import * as InspectPlanApi from '@/api/pages/inspectplan.js';
 	import { handleTreeForString } from "@/utils/ruoyi"
 	import { initResumableAndUpload } from "@/utils/equip.js"
+	import DateTools from "@/utils/mx-datepicker-dateTools.js"
 	export default{
 		components: {baTreePicker,MxDatePicker},
 		data(){
 			return {
-				plan: {},
 				planDetailProfileList: [],
 				commonDetail:{
+					planExecuteCount: undefined,
+					equipId: undefined,
+					equipName: undefined,
+					inspectionPlanId: undefined,
+					inspectionPlanName: undefined,
+					inspectionType: undefined,
+					inspectionCycle: undefined,
+					equiplocationId: undefined,
+					equiplocationName: undefined,
+					equipProfileId: undefined,
+					equipProfileName: undefined,
+					equipCode: undefined,
+					equipAttribute: undefined,
+					isStop: 1,
 					inspectionDate:undefined,
 					inspectionUsers:undefined,
 					dutyUsers:undefined,
@@ -91,8 +108,8 @@
 					{value:1,text:'开机'},
 					{value:2,text:'停机'}
 				],
-				equipProfileMap: new Map([]),
-				selectedFilesMap: new Map([]),//要上传的图片文件[key是设备编码，value就是图片文件数组]
+				equipProfileTree: [],//待选项设备档案树形结构（由于这里都是单体设备，所以最后一定是list数组格式）
+				selectedFilesMap: new Map([]),//要上传的图片文件[key是内容编码，value就是图片文件数组]
 			}
 		},
 		onShow() {
@@ -102,21 +119,32 @@
 		    });
 		},
 		async created(){
-			this.plan = uni.getStorageSync("plan");
-			await this.createEquipMap();
+			this.commonDetail.planExecuteCount = uni.getStorageSync("plan").planExecuteCount;
+			this.commonDetail.equipId = uni.getStorageSync("plan").equipId;
+			this.commonDetail.equipName = uni.getStorageSync("plan").equipName;
+			this.commonDetail.inspectionPlanId = uni.getStorageSync("plan").id;
+			this.commonDetail.inspectionPlanName = uni.getStorageSync("plan").name;
+			this.commonDetail.inspectionType = uni.getStorageSync("plan").inspectionType;
+			this.commonDetail.inspectionCycle = uni.getStorageSync("plan").inspectionCycle;
+			this.commonDetail.equiplocationId = uni.getStorageSync("plan").equiplocationId;
+			this.commonDetail.equiplocationName = uni.getStorageSync("plan").equiplocationName;
+			this.commonDetail.inspectionDate = DateTools.format(new Date(),"yyyy-mm-dd hh:ii:ss");
+			this.commonDetail.dutyUsers = uni.getStorageSync("plan").equiplocationDutyName;
 			this.planDetailProfileList = await this.buildPlanDetailProfile(uni.getStorageSync("planDetail"));
+			const epRes = await InspectPlanApi.getEquipmentProfile(this.commonDetail.equiplocationId,this.commonDetail.equipId);
+			this.equipProfileTree = handleTreeForString(epRes.data,'id','supId');
 		},
 		methods: {
 			// 显示选择器
-			showPicker(index,tree) {
-				this.$refs.treePicker._show(index,tree);
+			showPicker() {
+				this.$refs.treePicker._show(undefined,this.equipProfileTree);
 			},
 			//监听选择
 			selectChange(item,index) {
-				this.planDetailProfileList[index].equipProfileId = item.id;
-				this.planDetailProfileList[index].equipProfileName = item.equipName;
-				this.planDetailProfileList[index].equipCode = item.code;
-				this.planDetailProfileList[index].equipAttribute = item.attribute
+				this.commonDetail.equipProfileId = item.id;
+				this.commonDetail.equipProfileName = item.equipName;
+				this.commonDetail.equipCode = item.code;
+				this.commonDetail.equipAttribute = item.attribute
 			},
 			//选择
 			ed(e) {
@@ -125,46 +153,59 @@
 					this.commonDetail.inspectionDate = e.value;
 				}
 			},
+			async buildPlanDetailProfile(planDetail){
+				for(let i=0;i<planDetail.length;i++){
+					this.$set(planDetail[i],'result','');
+					this.$set(planDetail[i],'resultPhotos','');
+					this.$set(planDetail[i],'resultDetail','');
+				}
+				return planDetail;
+			},
+			addfile(e,did){
+				if(this.selectedFilesMap.has(did)){
+					this.selectedFilesMap.get(did).push(...e.tempFiles);
+				}else{
+					this.selectedFilesMap.set(did,e.tempFiles);
+				}
+			},
+			delfile(e,did){
+				if(this.selectedFilesMap.has(did)&&this.selectedFilesMap.get(did).length!==0){
+					this.selectedFilesMap.set(
+						did,
+						this.selectedFilesMap.get(did).filter(item => item.uuid !== e.tempFile.uuid)
+					);
+				}else{
+					this.$modal.showToast({
+						title: 'Some thing error in del file',
+						icon: 'error',
+						duration: 2000,
+					});
+				}
+			},
 			async submit(){
 				const inspectionProfileList = [];
 				for (const planDetailProfile of this.planDetailProfileList) {
 					let rp='';
-					if(this.selectedFilesMap.has(planDetailProfile.equipCode)&&this.selectedFilesMap.get(planDetailProfile.equipCode).length!==0){
-						// let warn = '';
-						// await initResumableAndUpload(this.selectedFilesMap.get(planDetailProfile.equipCode),planDetailProfile.equipCode)
-						// 	.then(results => {
-						// 		results.forEach(res => {
-						// 			if(res.code === 0){
-						// 				rp += res.value + '-_-';
-						// 			}else{
-						// 				warn += res.name + ",";
-						// 		}
-						// 	});
-						// });
-						// if(warn !== ''){
-						// 	uni.showToast({
-						// 	    title: '图片{' + warn + '}上传失败',
-						// 	    icon: 'none', // 使用 'none' 不显示图标
-						// 	});
-						// }
-						//这里先不上传文件，等下面表单校验通过后再真正上传，节省文件服务器空间
+					let errorMsg='未填写完整，请填写完整';
+					if(this.selectedFilesMap.has(planDetailProfile.id)&&this.selectedFilesMap.get(planDetailProfile.id).length!==0){
 						rp='baik baik saja';
 					}
 					const inspectionProfile = {
-						inspectionPlanId: this.plan.id,
-						inspectionPlanName: this.plan.name,
-						inspectionType: this.plan.inspectionType,
-						inspectionCycle: this.plan.inspectionCycle,
-						equiplocationId: this.plan.equiplocationId,
-						equiplocationName: this.plan.equiplocationName,
+						planExecuteCount: this.commonDetail.planExecuteCount,
+						inspectionPlanId: this.commonDetail.inspectionPlanId,
+						inspectionPlanName: this.commonDetail.inspectionPlanName,
+						inspectionType: this.commonDetail.inspectionType,
+						inspectionCycle: this.commonDetail.inspectionCycle,
+						equiplocationId: this.commonDetail.equiplocationId,
+						equiplocationName: this.commonDetail.equiplocationName,
 						inspectionDetailId: planDetailProfile.id,
 						inspectionDetail: planDetailProfile.details,
-						equipProfileId: planDetailProfile.equipProfileId,
-						equipProfileName: planDetailProfile.equipProfileName,
-						equipCode: planDetailProfile.equipCode,
-						equipAttribute: planDetailProfile.equipAttribute,
+						equipProfileId: this.commonDetail.equipProfileId,
+						equipProfileName: this.commonDetail.equipProfileName,
+						equipCode: this.commonDetail.equipCode,
+						equipAttribute: this.commonDetail.equipAttribute,
 						resultPhotos: rp,
-						isStop: planDetailProfile.result === 1?1:planDetailProfile.isStop,
+						isStop: this.commonDetail.isStop,
 						result: planDetailProfile.result,
 						resultDetail: planDetailProfile.resultDetail,
 						inspectionDate: this.commonDetail.inspectionDate,
@@ -173,19 +214,21 @@
 					};
 					if(Object.values(inspectionProfile).some((value, index) => {
 						const key = Object.keys(inspectionProfile)[index];
-						if(key === "resultDetail"){
+						if(key === "resultDetail"){//如果点检结果异常的话，点检详情必须填相关信息
 							if((value === null || value === '' || value === undefined)
 								&&
-								inspectionProfile.result==2){
+								inspectionProfile.result === 2){
+								errorMsg = "<"+inspectionProfile.inspectionDetail+">点检结果异常,请填写详情";
 								return true;
 							}
-						}else if(key === "resultPhotos"){
+						}else if(key === "resultPhotos"){//如果是拆检或有点巡检项结果异常的话，必须拍照片
 							if((value === null || value === '' || value === undefined)
 								&&
-								inspectionProfile.inspectionType ==4){
+								(inspectionProfile.inspectionType ===4 || inspectionProfile.result === 2)){
+								errorMsg = inspectionProfile.inspectionPlanName+":为拆检计划或点检项<"+inspectionProfile.inspectionDetail+">结果异常，必须拍照";
 								return true;
 							}
-						}else{
+						}else{//其他情况均不能为空
 							if(value === null || value === '' || value === undefined){
 								return true;
 							}
@@ -193,9 +236,9 @@
 						return false;
 					})){
 						uni.showToast({
-						  title: "未填写完整，请填写完整",
+						  title: errorMsg,
 						  icon: 'none',
-						  duration: 5000
+						  duration: 10000
 						});
 						return;
 					}else{
@@ -204,19 +247,19 @@
 				}
 				if(inspectionProfileList.length === 0){
 					uni.showToast({
-					  title: "未填写完整，请填写完整",
+					  title: errorMsg,
 					  icon: 'none',
-					  duration: 5000
+					  duration: 10000
 					});
 					return;
 				}
 				try{
 					for(const inspectionProfile of inspectionProfileList){
 						//更改原逻辑，只有当全form都校验通过时才上传图片，节省文件服务器空间
-						if(this.selectedFilesMap.has(inspectionProfile.equipCode)&&this.selectedFilesMap.get(inspectionProfile.equipCode).length!==0){
+						if(this.selectedFilesMap.has(inspectionProfile.inspectionDetailId)&&this.selectedFilesMap.get(inspectionProfile.inspectionDetailId).length!==0){
 							let rp = '';
 							let warn = '';
-							await initResumableAndUpload(this.selectedFilesMap.get(inspectionProfile.equipCode),inspectionProfile.equipCode)
+							await initResumableAndUpload(this.selectedFilesMap.get(inspectionProfile.inspectionDetailId),inspectionProfile.equipCode)
 								.then(results => {
 									results.forEach(res => {
 										if(res.code === 0){
@@ -248,50 +291,6 @@
 						}, 2000);
 					});
 					this.$tab.reLaunch('/pages/index')
-				}
-			},
-			async buildPlanDetailProfile(planDetail){
-				for(let i=0;i<planDetail.length;i++){
-					this.$set(planDetail[i],'equipCode','');
-					this.$set(planDetail[i],'equipProfileId','');
-					this.$set(planDetail[i],'equipProfileName','');
-					this.$set(planDetail[i],'equipAttribute','');
-					this.$set(planDetail[i],'isStop','');
-					this.$set(planDetail[i],'result','');
-					this.$set(planDetail[i],'resultPhotos','');
-					this.$set(planDetail[i],'resultDetail','');
-					//方法1，优化前的
-					// const equipProfileList = await InspectPlanApi.getEquipmentProfile(uni.getStorageSync("plan").equiplocationId,planDetail[i].equipId);
-					//方法2，优化后的
-					const equipProfileList = this.equipProfileMap.get(planDetail[i].equipId);
-					this.$set(planDetail[i],'equipSelectList',await handleTreeForString(equipProfileList,'id','supId'));
-				}
-				return planDetail;
-			},
-			async createEquipMap(){
-				const allEquipProfileList = await InspectPlanApi.getEquipmentProfile(uni.getStorageSync("plan").equiplocationId);
-				allEquipProfileList.data.forEach( equipProfile => {
-					this.equipProfileMap.set(equipProfile.equipId,[]);
-				})
-				allEquipProfileList.data.forEach( equipProfile => {
-					this.equipProfileMap.get(equipProfile.equipId).push(equipProfile);
-				})
-			},
-			addfile(e,code){
-				if(this.selectedFilesMap.has(code)){
-					this.selectedFilesMap.get(code).push(...e.tempFiles);
-				}else{
-					this.selectedFilesMap.set(code,e.tempFiles);
-				}
-			},
-			delfile(e,code){
-				if(this.selectedFilesMap.has(code)){
-					this.selectedFilesMap.set(
-						code,
-						this.selectedFilesMap.get(code).filter(item => item.uuid !== e.tempFile.uuid)
-					);
-				}else{
-					console.log("some thing error in del file");
 				}
 			},
 		}

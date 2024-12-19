@@ -67,7 +67,7 @@ public class EquipmentprofileServiceImpl implements EquipmentprofileService {
         }
         // 插入
         if(createReqVO.getEquipAttribute()==2){//如果是单体设备的话才生成二维码
-            String qrCodeFileUrl = equipProfileQrCodeApi.createAndUploadQrCode(createReqVO.getId(),createReqVO.getEquipName(),createReqVO.getCode());
+            String qrCodeFileUrl = equipProfileQrCodeApi.createAndUploadQrCode(createReqVO.getId(),createReqVO.getEquipName(),createReqVO.getCode(),createReqVO.getCode()+createReqVO.getEquipName());
             createReqVO.setQrCode(qrCodeFileUrl);
         }
         EquipmentprofileDO equipmentprofile = BeanUtils.toBean(createReqVO, EquipmentprofileDO.class);

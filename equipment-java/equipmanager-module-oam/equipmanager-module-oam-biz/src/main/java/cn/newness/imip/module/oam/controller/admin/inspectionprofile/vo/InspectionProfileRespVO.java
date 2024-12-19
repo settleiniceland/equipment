@@ -24,6 +24,12 @@ public class InspectionProfileRespVO {
     @ExcelIgnore
     private String inspectionPlanId;
 
+    @Schema(description = "计划执行次数")
+    @ExcelProperty("计划执行次数")
+    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
+    @ColumnWidth(30)
+    private Integer planExecuteCount;
+
     @Schema(description = "点检计划名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
     @ExcelProperty("点检计划名称")
     @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)

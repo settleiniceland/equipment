@@ -38,4 +38,13 @@ public interface EquipmentProfileApi {
     * @Return EquipmentProfileDto
     */
     EquipmentProfileDto getSupAttribute2EquipmentProfileDto(String equipmentProfileId);
+    /**
+    * 根据条件查询设备档案列表
+    *
+    * @param [equipmentProfileDto]
+    * @author machuran
+    * @date 24/11/13
+    * @Return java.util.List<cn.newness.imip.module.property.api.dto.EquipmentProfileDto>
+    */
+    List<EquipmentProfileDto> getEquipmentProfileList(EquipmentProfileDto equipmentProfileDto);
 }

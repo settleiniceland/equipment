@@ -47,10 +47,29 @@ public class MaintainDetailDO extends
      */
     private Integer isSpecial;
     /**
-    * 设备档案id【只有当is_special值为1时才有此值】
-    */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private String equipprofileId;
+     * 设备名称
+     */
+    private String equipName;
+    /**
+     * 设备区域id
+     */
+    private String equiplocationId;
+    /**
+     * 设备区域名称
+     */
+    private String equiplocationName;
+    /**
+      * 设备档案id列表
+      */
+    private String equipprofileIds;
+    /**
+     * 设备档案编码列表
+     */
+    private String equipprofileCodes;
+    /**
+     * 设备规格
+     */
+    private String equipSpecification;
     /**
     * 是否参照其他非特殊设备保养内容【0否，1是】
     */
@@ -62,21 +81,9 @@ public class MaintainDetailDO extends
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String refertoId;
     /**
-     * 设备名称
-     */
-    private String equipName;
-    /**
-     * 设备规格
-     */
-    private String equipSpecification;
-    /**
      * 保养周期
      */
     private BigDecimal maintainCycle;
-    /**
-     * 是否更换自身【字典：0否；1是】
-     */
-    private Integer replaceSelf;
     /**
      * 保养内容
      */

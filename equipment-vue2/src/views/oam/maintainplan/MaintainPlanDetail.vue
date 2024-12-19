@@ -19,16 +19,14 @@
                 <el-form-item label="设备名称" prop="equipName">
                     <el-input v-model="queryParams.equipName" placeholder="请输入设备名称" clearable />
                 </el-form-item>
+                <el-form-item label="特殊设备编码" prop="equipprofileCodes">
+                    <el-input v-model="queryParams.equipprofileCodes" placeholder="请输入特殊设备档案编码" clearable />
+                </el-form-item>
                 <el-form-item label="设备规格" prop="equipSpecification">
                     <el-input v-model="queryParams.equipSpecification" placeholder="请输入设备规格" clearable />
                 </el-form-item>
                 <el-form-item label="保养周期" prop="maintainCycle">
                     <el-input v-model="queryParams.maintainCycle" placeholder="请输入保养周期" clearable />
-                </el-form-item>
-                <el-form-item label="是否更换自身" prop="replaceSelf">
-                    <el-select v-model="queryParams.replaceSelf" placeholder="是否更换自身？" clearable size="small">
-                        <el-option v-for="dict in commonDict" :key="parseInt(dict.value)" :label="dict.label" :value="parseInt(dict.value)"/>
-                    </el-select>
                 </el-form-item>
                 <el-form-item label="保养内容" prop="details">
                     <el-input v-model="queryParams.details" placeholder="请输入保养内容" clearable />
@@ -56,14 +54,18 @@
                 <el-table-column label="是否特殊设备" align="center" prop="isSpecialName"/>
                 <el-table-column label="是否有参照对象" align="center" prop="isRefertoName"/>
                 <el-table-column label="设备名称" align="center" prop="equipName" />
+                <el-table-column label="设备编码" align="center" prop="equipprofileCodes" width="180">
+                    <template #default="scope">
+                        <div style="white-space: pre-wrap;">{{ scope.row.equipprofileCodes }}</div>
+                    </template>
+                </el-table-column>
                 <el-table-column label="设备规格" align="center" prop="equipSpecification" />
                 <el-table-column label="保养周期(单位h)" align="center" prop="maintainCycle" />
-                <el-table-column label="是否更换自身" align="center" prop="replaceSelfName"/>
                 <el-table-column label="保养内容" align="center" prop="details" />
                 <el-table-column label="创建者" align="center" prop="creator" />
                 <el-table-column label="创建时间" align="center" prop="createTime" width="180">
                     <template v-slot="scope">
-                    <span>{{ parseTime(scope.row.createTime) }}</span>
+                        <span>{{ parseTime(scope.row.createTime) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="更新者" align="center" prop="updater" />
@@ -119,9 +121,9 @@
                     isSpecial: null,
                     isReferto: null,
                     equipName: null,
+                    equipprofileCodes: null,
                     equipSpecification: null,
                     maintainCycle: null,
-                    replaceSelf: null,
                     details: null,
                 },
                 commonDict: [
@@ -152,6 +154,9 @@
                     this.loading = true;
                     const res = await MaintainDetailApi.getMaintainDetailPage(this.queryParams);
                     this.list = res.data.list;
+                    this.list.forEach(item => {
+                        item.equipprofileCodes = item.equipprofileCodes.split("-_-").join("\n");
+                    });
                     this.total = res.data.total;
                 } finally {
                     this.loading = false;
@@ -167,7 +172,6 @@
                     equipName: null,
                     equipSpecification: null,
                     maintainCycle: null,
-                    replaceSelf: null,
                     details: null,
                 }
             },

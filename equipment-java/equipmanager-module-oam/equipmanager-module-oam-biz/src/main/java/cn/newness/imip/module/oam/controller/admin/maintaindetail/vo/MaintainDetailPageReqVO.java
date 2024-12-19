@@ -1,6 +1,5 @@
 package cn.newness.imip.module.oam.controller.admin.maintaindetail.vo;
 
-import com.alibaba.excel.annotation.ExcelIgnore;
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.newness.imip.framework.common.pojo.PageParam;
@@ -30,8 +29,23 @@ public class MaintainDetailPageReqVO extends PageParam {
     @Schema(description = "是否特殊设备【字典：0否；1是】")
     private Integer isSpecial;
 
-    @Schema(description = "设备档案id【只有当is_special值为1时才有此值】")
-    private String equipprofileId;
+    @Schema(description = "设备名称", example = "王五")
+    private String equipName;
+
+    @Schema(description = "设备区域id")
+    private String equiplocationId;
+
+    @Schema(description = "设备区域名称")
+    private String equiplocationName;
+
+    @Schema(description = "设备档案id列表")
+    private String equipprofileIds;
+
+    @Schema(description = "设备档案编码列表")
+    private String equipprofileCodes;
+
+    @Schema(description = "设备规格")
+    private String equipSpecification;
 
     @Schema(description = "是否参照其他非特殊设备保养内容【0否，1是】")
     private Integer isReferto;
@@ -39,17 +53,8 @@ public class MaintainDetailPageReqVO extends PageParam {
     @Schema(description = "内容参照对象id")
     private String refertoId;
 
-    @Schema(description = "设备名称", example = "王五")
-    private String equipName;
-
-    @Schema(description = "设备规格")
-    private String equipSpecification;
-
     @Schema(description = "保养周期")
     private BigDecimal maintainCycle;
-
-    @Schema(description = "是否更换自身【字典：0否；1是】")
-    private Integer replaceSelf;
 
     @Schema(description = "保养内容")
     private String details;

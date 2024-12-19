@@ -24,6 +24,8 @@ public interface MaintainPlanMapper extends BaseMapperX<MaintainPlanDO> {
                 .eqIfPresent(MaintainPlanDO::getExecuteDeptId, reqVO.getExecuteDeptId())
                 .likeIfPresent(MaintainPlanDO::getExecuteDeptName, reqVO.getExecuteDeptName())
                 .eqIfPresent(MaintainPlanDO::getStatus, reqVO.getStatus())
+                .eqIfPresent(MaintainPlanDO::getEquiplocationId, reqVO.getEquiplocationId())
+                .likeIfPresent(MaintainPlanDO::getEquiplocationName, reqVO.getEquiplocationName())
                 .likeIfPresent(MaintainPlanDO::getRemark, reqVO.getRemark())
                 .eqIfPresent(MaintainPlanDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(MaintainPlanDO::getCreateTime, reqVO.getCreateTime())

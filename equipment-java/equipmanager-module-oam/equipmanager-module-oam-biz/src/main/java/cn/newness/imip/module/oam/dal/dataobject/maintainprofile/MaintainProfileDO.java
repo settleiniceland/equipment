@@ -68,10 +68,6 @@ public class MaintainProfileDO extends
      */
     private BigDecimal maintainCycle;
     /**
-     * 是否更换自身【字典：0否；1是】
-     */
-    private Integer replaceSelf;
-    /**
      * 保养图片【地址，中间以-_-隔开】
      */
     private String resultPhotos;

@@ -3,7 +3,7 @@
       <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" @close="handleDialogClose" width="53%" v-dialogDrag append-to-body>
         <!-- 搜索栏 -->
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" label-width="68px">
-          <el-form-item label="设备" prop="equipId">
+          <!-- <el-form-item label="设备" prop="equipId">
             <TreeSelect
               v-model="queryParams.equipId"
               :options="equipTree"
@@ -11,7 +11,7 @@
               placeholder="请选择设备"
               class="treeSelectCSS"
             />
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="点检内容" prop="details">
             <el-input v-model="queryParams.details" placeholder="请输入点检内容" clearable @keyup.enter.native="handleQuery"/>
           </el-form-item>
@@ -81,7 +81,7 @@
             equipId: null,
             details: null,
           },
-          equipTree: [], // 设备树形结构
+          // equipTree: [], // 设备树形结构
           addSubstanceIds: [], // 要添加的点检内容id 
         };
       },
@@ -89,12 +89,13 @@
   
       },
       methods: {
-        async open(id,name){
+        async open(id,name,equipId){
           this.reset(); 
           this.queryParams.planId = id;
+          this.queryParams.equipId = equipId;
           this.dialogVisible = true;
           this.dialogTitle = "点检计划《" + name + "》内容添加";
-          this.getAllTree();
+          // this.getAllTree();
           this.getList();
         },
         async getList(){
@@ -112,12 +113,12 @@
             return this.myNormalizer(node,'id','equipName');
         },
         /** 获取所有所需要的树形结构 */
-        async getAllTree(){
-            //设备树型结构
-            this.equipTree = [];
-            const equipRes = await EquipApi.getEquipList();
-            this.equipTree = this.handleTreeForString(equipRes.data,'id','supId');
-        },
+        // async getAllTree(){
+        //     //设备树型结构
+        //     this.equipTree = [];
+        //     const equipRes = await EquipApi.getEquipList();
+        //     this.equipTree = this.handleTreeForString(equipRes.data,'id','supId');
+        // },
          /** 搜索按钮操作 */
          handleQuery() {
             this.queryParams.pageNo = 1;

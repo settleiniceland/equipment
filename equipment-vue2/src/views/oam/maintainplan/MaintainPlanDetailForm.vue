@@ -16,8 +16,8 @@
                         <el-option v-for="dict in commonDict" :key="parseInt(dict.value)" :label="dict.label" :value="parseInt(dict.value)"/>
                     </el-select>
                 </el-form-item>
-                <el-form-item v-if="formData.isSpecial === 1" label="特殊设备" prop="equipprofileId">
-                    <el-select v-model="formData.equipprofileId" placeholder='特殊设备' clearable size="small">
+                <el-form-item v-if="formData.equipId !== undefined && formData.equipId !== '' && formData.equipId !== null" label="具体设备" prop="equipprofileIds">
+                    <el-select multiple v-model="formData.equipprofileIds" placeholder='具体设备' clearable size="small">
                         <el-option v-for="equipprofile in equipprofileList" :key="equipprofile.id" :label="equipprofile.equipName + equipprofile.code" :value="equipprofile.id"/>
                     </el-select>
                 </el-form-item>
@@ -32,12 +32,6 @@
                 </el-form-item>
                 <el-form-item label="周期【单位:h】" prop="maintainCycle">
                     <el-input-number v-model="formData.maintainCycle" :precision="2" :step="0.1"></el-input-number>
-                </el-form-item>
-                <el-form-item label="是否更换自身" prop="replaceSelf">
-                    <el-select v-model="formData.replaceSelf" placeholder='是否更换自身' clearable size="small" 
-                        :disabled="formData.isReferto === 1">
-                        <el-option v-for="dict in commonDict" :key="parseInt(dict.value)" :label="dict.label" :value="parseInt(dict.value)" />
-                    </el-select>
                 </el-form-item>
                 <el-form-item label="保养内容" prop="details">
                     <el-input type="textarea" :rows="9" v-model="formData.details" placeholder="保养内容"
@@ -78,13 +72,15 @@
                     equipMaintainPlanName: undefined,
                     equipId: undefined,
                     isSpecial: undefined,
-                    equipprofileId: undefined,
+                    equipName: undefined,
+                    equiplocationId: undefined,
+                    equiplocationName: undefined,
+                    equipprofileIds: undefined,
+                    equipprofileCodes: undefined,
+                    equipSpecification: undefined,
                     isReferto: undefined,
                     refertoId: undefined,
-                    equipName: undefined,
-                    equipSpecification: undefined,
                     maintainCycle: undefined,
-                    replaceSelf: undefined,
                     details: undefined,
                 },
                 // 表单校验
@@ -93,19 +89,18 @@
                     equipMaintainPlanName: [{ required: true, message: '保养计划名称不能为空', trigger: 'blur' }],
                     equipId: [{ required: true, message: '设备不能为空', trigger: 'blur' }],
                     isSpecial: [{ required: true, message: '未选择是否为特殊设备', trigger: 'blur' }],
-                    equipprofileId: [{ required: true, message: '未选择特殊设备', trigger: 'blur' }],
-                    isReferto: [{ required: true, message: '未选择是否参考其他', trigger: 'blur' }],
-                    refertoId: [{ required: true, message: '未选择参考项', trigger: 'blur' }],
+                    equipprofileIds: [{ required: true, message: '未选择特殊设备', trigger: 'blur' }],
                     equipName: [{ required: true, message: '设备名称不能为空', trigger: 'blur' }],
                     equipSpecification: [{ required: true, message: '设备规格不能为空', trigger: 'blur' }],
+                    isReferto: [{ required: true, message: '未选择是否参考其他', trigger: 'blur' }],
+                    refertoId: [{ required: true, message: '未选择参考项', trigger: 'blur' }],
                     maintainCycle: [{ required: true, message: '保养周期不能为空', trigger: 'blur' }],
-                    replaceSelf: [{ required: true, message: '未选择是否更换自身', trigger: 'blur' }],
                     details: [{ required: true, message: '保养内容不能为空', trigger: 'blur' }],
                 },
                 equipTree: [],          //设备树形结构
                 equipprofileList: [],   //对应设备的设备档案列表
                 maintainList: [],       //全部非特殊设备的保养内容list列表
-                realMaintainList: [],   //真正要使用的保养内容list列表
+                realMaintainList: [],   //真正要参照的保养内容list列表
             }
         },
         methods:{
@@ -119,12 +114,16 @@
                     if (id) {//修改
                         const res = await MaintainDetailApi.getMaintainDetail(id);
                         this.formData = res.data;
+                        this.formData.equipprofileIds = this.formData.equipprofileIds.split("-_-");
+                        this.formData.equipprofileCodes = this.formData.equipprofileCodes.split("-_-");
                         this.handleSpecialChange(this.formData.isSpecial);
                         this.dialogTitle = "修改保养内容表";
                     }else{//新增
                         this.dialogTitle = "新增保养内容表";
                         this.formData.equipMaintainPlanId = this.maintainPlan.id;
                         this.formData.equipMaintainPlanName = this.maintainPlan.name;
+                        this.formData.equiplocationId = this.maintainPlan.equiplocationId;
+                        this.formData.equiplocationName = this.maintainPlan.equiplocationName;
                     }
                 }finally {
                     this.formLoading = false;
@@ -138,13 +137,15 @@
                     equipMaintainPlanName: undefined,
                     equipId: undefined,
                     isSpecial: undefined,
-                    equipprofileId: undefined,
+                    equipName: undefined,
+                    equiplocationId: undefined,
+                    equiplocationName: undefined,
+                    equipprofileIds: undefined,
+                    equipprofileCodes: undefined,
+                    equipSpecification: undefined,
                     isReferto: undefined,
                     refertoId: undefined,
-                    equipName: undefined,
-                    equipSpecification: undefined,
                     maintainCycle: undefined,
-                    replaceSelf: undefined,
                     details: undefined,
                 };
                 this.equipprofileList = [];
@@ -173,7 +174,11 @@
                 if(selectValue !== '' && selectValue !== undefined && selectValue !== null){
                     //查询到对相应的设备档案list
                     this.equipprofileList = [];
-                    const resp = await EquipmentprofileApi.getListByEquipId(selectValue);
+                    const param = {
+                        equipId: selectValue,
+                        locationId: this.formData.equiplocationId,
+                    }
+                    const resp = await EquipmentprofileApi.getEquipmentprofileList(param);  
                     this.equipprofileList = resp.data;
                     //查询要使用的参照对象list
                     this.realMaintainList = [];
@@ -187,17 +192,15 @@
             },
             /** 是否特殊设备选中事件 */
             handleSpecialChange(selectValue) {
-                if(selectValue === 0){//不是特殊设备的话则清空设备档案id值
-                    this.formData.equipprofileId = undefined;
+                if(selectValue === 0){//不是特殊设备的话则清空是否借鉴和借鉴id属性
                     this.formData.isReferto = undefined;
                     this.formData.refertoId = undefined;
-                }0
+                }
             },
             /** 参考对象列表选中事件 */
             handleReferto(selectValue){
                 this.realMaintainList.forEach(maintain => {
                     if(maintain.id === selectValue){
-                        this.formData.replaceSelf = maintain.replaceSelf;
                         this.formData.details = maintain.details;
                         return;
                     }
@@ -206,7 +209,6 @@
             /** 是否参考其他触发事件 */
             handleIsRefer(selectValue){
                 this.formData.refertoId = undefined;
-                this.formData.replaceSelf = undefined;
                 this.formData.details = undefined;
             },
             /** 表单提交 */
@@ -215,15 +217,26 @@
                     // 先验证表格
                     await this.$refs["formRef"].validate();
                     //给设备名设备规格赋值
-                    if(this.formData.isSpecial === 0){//不是特殊设备
-                        const selectedNode = this.findNodeById(this.equipTree,this.formData.equipId);
-                        this.formData.equipName = selectedNode.equipName;
-                        this.formData.equipSpecification = selectedNode.equipSpecification;
-                    }else if(this.formData.isSpecial === 1){//是特殊设备
-                        const selectedNode = this.findNodeById(this.equipprofileList,this.formData.equipprofileId);
-                        this.formData.equipName = selectedNode.equipName + selectedNode.code;
-                        this.formData.equipSpecification = selectedNode.equipSpecification;
-                    }
+                    const equipNode = this.findNodeById(this.equipTree,this.formData.equipId);
+                    this.formData.equipName = equipNode.equipName;
+                    this.formData.equipSpecification = equipNode.equipSpecification;
+                    const ids = this.formData.equipprofileIds;
+                    this.formData.equipprofileIds = '';
+                    this.formData.equipprofileCodes = '';
+                    const splitMark = "-_-";
+                    ids.forEach((id,index) => {
+                        const equipprofileNode = this.findNodeById(this.equipprofileList,id);
+                        if(equipprofileNode === undefined || equipprofileNode === null){
+                            this.$modal.msgError("特殊设备信息与设备信息不符");
+                            return;
+                        }
+                        this.formData.equipprofileIds += equipprofileNode.id;
+                        this.formData.equipprofileCodes += equipprofileNode.code;
+                        if(index !== ids.length - 1){
+                            this.formData.equipprofileIds += splitMark;
+                            this.formData.equipprofileCodes += splitMark;
+                        }
+                    })
                     //验证通过正式提交
                     if(this.formData.id){//修改
                         await MaintainDetailApi.updateMaintainDetail(this.formData);
@@ -238,7 +251,7 @@
                         this.$emit('success');
                         return;
                     }
-                }catch(errors){}
+                }catch(errors){this.$modal.msgError(errors)}
             },
         }
     }

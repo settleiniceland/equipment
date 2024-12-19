@@ -46,6 +46,14 @@ public class MaintainPlanDO extends
      */
     private Integer status;
     /**
+     * 设备区域id
+     */
+    private String equiplocationId;
+    /**
+     * 设备区域名称
+     */
+    private String equiplocationName;
+    /**
      * 备注
      */
     private String remark;

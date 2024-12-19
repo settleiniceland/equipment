@@ -37,6 +37,7 @@
       <el-table-column label="设备名称" align="center" prop="equipName" />
       <el-table-column label="设备规格" align="center" prop="equipSpecification" show-overflow-tooltip />
       <el-table-column label="点检内容" align="center" prop="details" width="180"/>
+      <el-table-column label="点检标准" align="center" prop="standard" width="180"/>
       <el-table-column :label='$t("message.Button.creator")' align="center" prop="creator" show-overflow-tooltip />
       <el-table-column :label='$t("message.Button.createTime")' align="center" prop="createTime" show-overflow-tooltip >
         <template v-slot="scope">

@@ -3,12 +3,17 @@ package cn.newness.imip.module.oam.service.inspectplan;
 import cn.newness.imip.framework.common.pojo.PageParam;
 import cn.newness.imip.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.newness.imip.module.oam.controller.admin.inspectionprofile.vo.InspectionProfilePageReqVO;
+import cn.newness.imip.module.oam.controller.admin.inspectionsubstance.vo.InspectionSubstancePageReqVO;
+import cn.newness.imip.module.oam.controller.admin.inspectionsubstance.vo.InspectionSubstanceRespVO;
 import cn.newness.imip.module.oam.controller.app.inspectplan.vo.InspectplanAppVO;
 import cn.newness.imip.module.oam.dal.dataobject.inspectionprofile.InspectionProfileDO;
 import cn.newness.imip.module.oam.dal.dataobject.inspectionsubstancemap.InspectionSubstanceMapDO;
 import cn.newness.imip.module.oam.dal.mysql.inspectionprofile.InspectionProfileMapper;
+import cn.newness.imip.module.oam.dal.mysql.inspectionsubstance.InspectionSubstanceMapper;
 import cn.newness.imip.module.oam.dal.mysql.inspectionsubstancemap.InspectionSubstanceMapMapper;
+import cn.newness.imip.module.property.api.EquipmentProfileApi;
 import cn.newness.imip.module.property.api.LocationApi;
+import cn.newness.imip.module.property.api.dto.EquipmentProfileDto;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,9 +45,13 @@ public class InspectplanServiceImpl implements InspectplanService {
     @Resource
     private LocationApi locationApi;
     @Resource
+    private EquipmentProfileApi equipmentProfileApi;
+    @Resource
     private InspectionSubstanceMapMapper mapMapper;
     @Resource
     private InspectionProfileMapper inspectionProfileMapper;
+    @Resource
+    private InspectionSubstanceMapper inspectionSubstanceMapper;
 
     @Override
     public String createInspectplan(InspectplanSaveReqVO createReqVO) {
@@ -50,6 +59,9 @@ public class InspectplanServiceImpl implements InspectplanService {
         createReqVO.setId(BeanUtils.createId());
         //校验名字是否重复
         validateInspectplanNameRepetition(createReqVO.getName(), createReqVO.getId());
+        //检测该区域内是否存在该设备
+        validateLocationAndEquip(createReqVO);
+        /*全部校验通过*/
         //全层级区域名称赋值
         createReqVO.setEquiplocationName(locationApi.getCompleteLocationName(createReqVO.getEquiplocationId()));
         // 插入
@@ -65,6 +77,19 @@ public class InspectplanServiceImpl implements InspectplanService {
         validateInspectplanExists(updateReqVO.getId());
         //校验名字是否重复
         validateInspectplanNameRepetition(updateReqVO.getName(), updateReqVO.getId());
+        //检测该区域内是否存在该设备
+        validateLocationAndEquip(updateReqVO);
+        //如果该计划存在内容,校验关联设备是否发生修改，发生修改则报错
+        InspectionSubstancePageReqVO pageReqVO=new InspectionSubstancePageReqVO();
+        pageReqVO.setPageSize(-1);
+        pageReqVO.setPlanId(updateReqVO.getId());
+        List<InspectionSubstanceRespVO> inspectionSubstanceRespVOS = inspectionSubstanceMapper.selectPageByPlanId(pageReqVO);
+        for(InspectionSubstanceRespVO ip:inspectionSubstanceRespVOS){
+            if(!updateReqVO.getEquipId().equals(ip.getEquipId())){
+                throw exception(INSPECTION_UPDATE_EQUIPID_ERROR);
+            }
+        }
+        /*全部校验通过*/
         //位置名修改
         if(!inspectplanMapper.selectById(updateReqVO.getId()).getEquiplocationId().equals(updateReqVO.getEquiplocationId())){
             updateReqVO.setEquiplocationName(locationApi.getCompleteLocationName(updateReqVO.getEquiplocationId()));
@@ -117,7 +142,16 @@ public class InspectplanServiceImpl implements InspectplanService {
             throw exception(INSPECTPLAN_NAME_REPETITION);
         }
     }
-
+    //检测该区域是否存在该设备
+    private void validateLocationAndEquip(InspectplanSaveReqVO reqVO) {
+        EquipmentProfileDto equipmentProfileDto = new EquipmentProfileDto();
+        equipmentProfileDto.setEquipId(reqVO.getEquipId());
+        equipmentProfileDto.setLocationId(reqVO.getEquiplocationId());
+        int size = equipmentProfileApi.getEquipmentProfileList(equipmentProfileDto).size();
+        if(size<=0){
+            throw exception(INSPECTION_NO_EQUIP);
+        }
+    }
     @Override
     public void addSubstancesToPlan(String planId, List<String> substanceIds) {
         List<InspectionSubstanceMapDO> mapDOList=new ArrayList<>();
@@ -148,7 +182,6 @@ public class InspectplanServiceImpl implements InspectplanService {
         List<InspectplanAppVO> inspectplanAppVOList=getInspectplanListWithTimeUpStatus(inspectplanMapper.getInspectplanListForApp(inspectplanAppVO));
         return inspectplanAppVOList;
     }
-    //获取计划是否到点检时间
     private List<InspectplanAppVO> getInspectplanListWithTimeUpStatus(List<InspectplanAppVO> inspectplanAppVOList) {
         List<String> planIdList=new ArrayList<>();
         Map<String,InspectionProfileDO> profileToolMap=new HashMap<>();

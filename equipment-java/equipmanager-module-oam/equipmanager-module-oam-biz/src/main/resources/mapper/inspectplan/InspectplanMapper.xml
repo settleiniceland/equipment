@@ -11,7 +11,7 @@
         <result property="detail" column="detail"/>
     </resultMap>
     <sql id="planList">
-        SELECT p.id, p.inspection_type, p.inspection_cycle, p.`name`, p.equiplocation_id, p.equiplocation_name, p.detail
+        SELECT p.id, p.inspection_type, p.inspection_cycle, p.`name`, p.equiplocation_id, p.equiplocation_name, p.equiplocation_duty_name, p.equip_id, p.equip_name, p.detail
         FROM equip_inspection_inspectplan AS p
     </sql>
     <select id="getInspectplanListForApp" resultMap="InspectplanAppVO">

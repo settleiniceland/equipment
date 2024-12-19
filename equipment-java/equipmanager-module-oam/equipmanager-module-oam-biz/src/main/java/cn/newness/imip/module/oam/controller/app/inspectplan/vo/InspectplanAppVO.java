@@ -35,6 +35,15 @@ public class InspectplanAppVO {
     @Schema(description = "设备区域名称", example = "王五")
     private String equiplocationName;
 
+    @Schema(description = "设备区域负责人", example = "王五")
+    private String equiplocationDutyName;
+
+    @Schema(description = "设备id", example = "8544")
+    private String equipId;
+
+    @Schema(description = "设备名称", example = "王五")
+    private String equipName;
+
     @Schema(description = "备注")
     private String detail;
 }

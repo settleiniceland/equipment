@@ -55,6 +55,18 @@ public class InspectplanDO extends
      */
     private String equiplocationName;
     /**
+     * 设备区域负责人
+     */
+    private String equiplocationDutyName;
+    /**
+     * 设备id
+     */
+    private String equipId;
+    /**
+     * 设备名称
+     */
+    private String equipName;
+    /**
      * 备注
      */
     private String detail;

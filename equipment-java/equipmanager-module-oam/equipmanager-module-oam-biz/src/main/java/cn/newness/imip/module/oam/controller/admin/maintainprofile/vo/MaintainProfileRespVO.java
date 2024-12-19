@@ -1,5 +1,8 @@
 package cn.newness.imip.module.oam.controller.admin.maintainprofile.vo;
 
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -38,6 +41,12 @@ public class MaintainProfileRespVO {
     @ExcelProperty("是否特殊设备【字典：0否；1是】")
     private Integer isSpecial;
 
+    @Schema(description = "是否特殊设备", requiredMode = Schema.RequiredMode.REQUIRED)
+    @ExcelProperty("是否特殊设备")
+    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
+    @ColumnWidth(30)
+    private String isSpecialName;
+
     @Schema(description = "设备档案id", requiredMode = Schema.RequiredMode.REQUIRED, example = "25751")
     @ExcelProperty("设备档案id")
     private String equipmentprofileId;
@@ -53,10 +62,6 @@ public class MaintainProfileRespVO {
     @Schema(description = "保养周期", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("保养周期")
     private BigDecimal maintainCycle;
-
-    @Schema(description = "是否更换自身【字典：0否；1是】", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelProperty("是否更换自身【字典：0否；1是】")
-    private Integer replaceSelf;
 
     @Schema(description = "保养图片【地址，中间以-_-隔开】")
     @ExcelProperty("保养图片【地址，中间以-_-隔开】")

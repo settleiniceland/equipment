@@ -33,3 +33,11 @@ export function addInspectProfileList(data){
 		'data':data
 	})
 }
+
+//根据计划Id获取该计划最新轮次首次录入的信息
+export function getPlanNewestExecuteTimeByPlanId(planId){
+	return request({
+		url: '/oam/inspection-profile/getPlanNewestExecuteTime?planId=' + planId,
+		'method':'get'
+	})
+}

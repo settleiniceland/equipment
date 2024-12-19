@@ -26,7 +26,13 @@
             :normalizer="normalizer1"
             placeholder="请选择位置"
             class="treeSelectCSS"
+            @input="selectLocation"
           />
+        </el-form-item>
+        <el-form-item label="点检设备" prop="equipId" v-show="formData.equiplocationId !== undefined">
+          <el-select v-model="formData.equipId" placeholder="请选择设备" clearable size="small" @input="selectEquip">
+            <el-option v-for="equipprofile in equipprofileList" :key="equipprofile.equipId" :label="equipprofile.equipName" :value="equipprofile.equipId"/>
+          </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="detail">
           <el-input type="textarea" :rows="9" v-model="formData.detail" placeholder="请输入备注" />
@@ -43,6 +49,7 @@
 <script>
   import * as InspectplanApi from '@/api/oam/inspectplan';
   import * as InstalllocationApi from '@/api/property/installlocation';
+  import * as EquipmentprofileApi from '@/api/property/equipmentprofile';
   import TreeSelect from "@riophae/vue-treeselect";
   import '@riophae/vue-treeselect/dist/vue-treeselect.css';
   export default {
@@ -65,6 +72,9 @@
           name: undefined,
           equiplocationId: undefined,
           equiplocationName: undefined,
+          equiplocationDutyName: undefined,
+          equipId: undefined,
+          equipName: undefined,
           detail: undefined,
         },
         // 表单校验
@@ -74,8 +84,11 @@
           inspectionCycle: [{ required: true, message: '点检周期不能为空', trigger: 'blur' }],
           name: [{ required: true, message: '点检计划名称不能为空', trigger: 'blur' }],
           equiplocationId: [{ required: true, message: '设备区域id不能为空', trigger: 'change' }],
+          equipId: [{ required: true, message: '设备id不能为空', trigger: 'change' }],
+          equipName: [{ required: true, message: '设备名称不能为空', trigger: 'change' }],
         },
         installlocationTree: [],//设备安装位置树型结构
+        equipprofileList: [],//设备列表（该位置下所有存在实体设备的设备种类列表）
       };
     },
     props:{
@@ -137,6 +150,7 @@
           name: undefined,
           equiplocationId: undefined,
           equiplocationName: undefined,
+          equiplocationDutyName: undefined,
           detail: undefined,
         };
         this.resetForm("formRef");
@@ -152,6 +166,38 @@
       normalizer1(node){
         return this.myNormalizer(node,"id","name");
       },
+      /** 地址选中事件 */
+      async selectLocation(locationId){
+        if(locationId === undefined || locationId === '' || locationId === null){
+          this.formData.equipId = undefined;
+          this.formData.equipName = undefined;
+          this.formData.equiplocationDutyName = undefined;
+        }else{
+          //查设备列表
+          const equipprofilereqvo = {
+            equipAttribute: 2,
+            locationId: locationId,
+          }
+          const resp = await EquipmentprofileApi.getEquipmentprofileList(equipprofilereqvo);
+          this.equipprofileList = Array.from(new Map(resp.data.map(item => [item.equipId, item])).values());
+          //根据地址id赋值负责人值
+          const location = this.findNodeById(this.installlocationTree,locationId);
+          this.formData.equiplocationDutyName = location.dutyName;
+        }
+      },
+      /** 设备选中事件 */
+      selectEquip(equipId){
+        if(equipId === undefined || equipId === '' || equipId === null){
+          this.formData.equipName = undefined;
+        }else{
+          for(const equipprofile of this.equipprofileList){
+            if(equipprofile.equipId === equipId){
+              this.formData.equipName = equipprofile.equipName;
+              break;
+            }
+          }
+        }
+      }
     }
   };
 </script>

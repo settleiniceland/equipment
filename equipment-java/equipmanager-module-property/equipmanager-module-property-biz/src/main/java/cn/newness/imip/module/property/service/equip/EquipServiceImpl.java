@@ -187,6 +187,26 @@ public class EquipServiceImpl implements EquipService {
         return equipRespVOList;
     }
 
+    @Override
+    public String getCompleteEquipName(String id) {
+        return getAllLayerNameById(id);
+    }
+    /**
+    * 求设备全层级名
+    *
+    * @param [id]
+    * @author machuran
+    * @date 2024.11.19
+    * @Return java.lang.String
+    */
+    private String getAllLayerNameById(String id) {
+        EquipDO equipDO = equipMapper.selectById(id);
+        if("0".equals(equipDO.getSupId())){
+            return equipDO.getEquipName();
+        }
+        return getAllLayerNameById(equipDO.getSupId())+"->"+equipDO.getEquipName();
+    }
+
     private EquipDO validateEquipExists(String id) {
         EquipDO equipDO = equipMapper.selectById(id);
         if (equipDO == null) {

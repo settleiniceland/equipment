@@ -22,6 +22,7 @@ public interface InspectionProfileMapper extends BaseMapperX<InspectionProfileDO
         return selectPage(reqVO, new LambdaQueryWrapperX<InspectionProfileDO>()
                 .eqIfPresent(InspectionProfileDO::getId, reqVO.getId())
                 .eqIfPresent(InspectionProfileDO::getInspectionPlanId, reqVO.getInspectionPlanId())
+                .eqIfPresent(InspectionProfileDO::getPlanExecuteCount, reqVO.getPlanExecuteCount())
                 .eqIfPresent(InspectionProfileDO::getInspectionDetailId, reqVO.getInspectionDetailId())
                 .likeIfPresent(InspectionProfileDO::getInspectionDetail, reqVO.getInspectionDetail())
                 .eqIfPresent(InspectionProfileDO::getEquipProfileId, reqVO.getEquipProfileId())

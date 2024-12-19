@@ -15,6 +15,9 @@
         <el-form-item label="点检内容" prop="details">
           <el-input type="textarea" :rows="9" v-model="formData.details" placeholder="请输入点检内容" />
         </el-form-item>
+        <el-form-item label="点检标准" prop="standard">
+          <el-input type="textarea" :rows="9" v-model="formData.standard" placeholder="请输入点检标准" />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm" :disabled="formLoading">{{ $t("message.Button.determine") }}</el-button>
@@ -47,6 +50,7 @@
           equipName: undefined,
           equipSpecification: undefined,
           details: undefined,
+          standard: undefined,
           deptId: undefined,
         },
         // 表单校验
@@ -118,7 +122,8 @@
       async getAllTree(){
         //设备树形结构
         this.equipTree = [];
-        const res = await EquipApi.getEquipList();
+        const param = {equipAttribute: 2};
+        const res = await EquipApi.getEquipList(param);
         this.equipTree = this.handleTreeForString(res.data, 'id', 'supId');
       },
       /** 转换设备表数据结构 */

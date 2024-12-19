@@ -42,9 +42,37 @@ public class MaintainDetailRespVO {
     @ColumnWidth(30)
     private String isSpecialName;
 
-    @Schema(description = "设备档案id【只有当is_special值为1时才有此值】")
+    @Schema(description = "设备名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
+    @ExcelProperty("设备名称")
+    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
+    @ColumnWidth(30)
+    private String equipName;
+
+    @Schema(description = "设备区域id")
     @ExcelIgnore
-    private String equipprofileId;
+    private String equiplocationId;
+
+    @Schema(description = "设备区域名称")
+    @ExcelProperty("设备区域名称")
+    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
+    @ColumnWidth(30)
+    private String equiplocationName;
+
+    @Schema(description = "设备档案id列表")
+    @ExcelIgnore
+    private String equipprofileIds;
+
+    @Schema(description = "设备档案编码列表", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
+    @ExcelProperty("设备档案编码列表")
+    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
+    @ColumnWidth(30)
+    private String equipprofileCodes;
+
+    @Schema(description = "设备规格", requiredMode = Schema.RequiredMode.REQUIRED)
+    @ExcelProperty("设备规格")
+    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
+    @ColumnWidth(30)
+    private String equipSpecification;
 
     @Schema(description = "是否参照其他非特殊设备保养内容【0否，1是】")
     @ExcelIgnore
@@ -60,33 +88,11 @@ public class MaintainDetailRespVO {
     @ExcelIgnore
     private String refertoId;
 
-    @Schema(description = "设备名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
-    @ExcelProperty("设备名称")
-    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
-    @ColumnWidth(30)
-    private String equipName;
-
-    @Schema(description = "设备规格", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelProperty("设备规格")
-    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
-    @ColumnWidth(30)
-    private String equipSpecification;
-
     @Schema(description = "保养周期", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("保养周期【单位：h】")
     @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
     @ColumnWidth(30)
     private BigDecimal maintainCycle;
-
-    @Schema(description = "是否更换自身【字典：0否；1是】", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelIgnore
-    private Integer replaceSelf;
-
-    @Schema(description = "是否更换自身", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelProperty("是否更换自身")
-    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
-    @ColumnWidth(30)
-    private String replaceSelfName;
 
     @Schema(description = "保养内容", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("保养内容")

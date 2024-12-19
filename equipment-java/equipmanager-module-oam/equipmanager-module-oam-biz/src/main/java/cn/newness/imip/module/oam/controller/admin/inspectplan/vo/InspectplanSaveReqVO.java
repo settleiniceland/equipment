@@ -36,7 +36,17 @@ public class InspectplanSaveReqVO {
     @Schema(description = "设备区域名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
     private String equiplocationName;
 
+    @Schema(description = "设备区域负责人", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
+    private String equiplocationDutyName;
+
+    @Schema(description = "设备id")
+    @NotEmpty(message = "设备id不能为空")
+    private String equipId;
+
+    @Schema(description = "设备名称")
+    @NotEmpty(message = "设备名称不能为空")
+    private String equipName;
+
     @Schema(description = "备注")
     private String detail;
-
 }

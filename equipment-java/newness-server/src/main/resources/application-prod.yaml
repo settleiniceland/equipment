@@ -62,7 +62,9 @@ spring:
       port: 6379 # 端口
       database: 1 # 数据库索引
       password: 12345ssdlh # 密码，建议生产环境开启
-
+# 临时文件存放目录
+temporary:
+  directory: D:\User\Music\Cache
 --- #################### 定时任务相关配置 ####################
 
 # Quartz 配置项，对应 QuartzProperties 配置类

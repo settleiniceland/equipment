@@ -11,7 +11,7 @@
 					:key="zindex" 
 					class="question" 
 					hover-class="hover" 
-					@click="handleInspectplan(item)"
+					@click="openSelectPup(item)"
 					:style="{ backgroundColor: item.timeUp ? '#ff5e9f' : 'transparent' }">
 				<view class="text-item">{{ item.name }}</view>
 			</view>
@@ -40,11 +40,22 @@
 				<view class="text-item">{{ item.name }}</view>
 			</view>
 		</view>
+		<!-- 点巡检计划录入选择 -->
+		<uni-popup ref="planSelectDialog" type="dialog" @maskClick="closeSelectPup">
+			<view class="popup-content">
+				<uni-title type="h3" :title="inspectPlan.name" align="center"/>
+				<button style="margin-bottom: 30px;" @click="handleInspectplan(0)" type="primary">继续上轮点检</button>
+				<button @click="handleInspectplan(1)" type="primary">开启新一轮点检</button>
+			</view>
+		</uni-popup>
 		<!-- 点巡检计划详情弹出框 -->
 		<uni-popup ref="inspectPlanPopup" class="my-popul">
 			<view class="my-popul-view">
-				<uni-title type="h1" :title="inspectPlan.name" align="center"/>
+				<uni-title type="h1" :title="inspectPlan.name" align="center" style="background-color: aliceblue;"/>
+				<uni-section class="mb-10" title='第几次执行此计划' :sub-title="String(inspectPlan.planExecuteCount)"/>
+				<uni-section class="mb-10" title='此轮执行开始时间' :sub-title="inspectPlan.planStartTime"/>
 				<uni-section class="mb-10" :title='$t("messages.words.text42")' :sub-title="inspectPlan.equiplocationName"/>
+				<uni-section class="mb-10" title='设备' :sub-title="inspectPlan.equipName"/>
 				<uni-section class="mb-10" :title='$t("messages.words.text43")' :sub-title="String(inspectPlan.inspectionCycle)"/>
 				<uni-section class="mb-10" :title='$t("messages.words.text44")' :sub-title="inspectionTypeText"/>
 				<uni-section class="mb-10" :title='$t("messages.words.text45")' :sub-title="inspectPlan.detail"/>
@@ -63,8 +74,9 @@
 		<!-- 保养计划详情弹出框 -->
 		<uni-popup ref="maintainPlanPopup" class="my-popul">
 			<view class="my-popul-view">
-				<uni-title type="h1" :title="maintainPlan.name" align="center"/>
+				<uni-title type="h1" :title="maintainPlan.name" align="center" style="background-color: aliceblue;"/>
 				<uni-section class="mb-10" title='执行部门名称' :sub-title="maintainPlan.executeDeptName"/>
+				<uni-section class="mb-10" title='保养地区' :sub-title="maintainPlan.equiplocationName"/>
 				<uni-section class="mb-10" title='备注' :sub-title="maintainPlan.remark"/>
 				<view v-for="(item, zindex) in maintainDetailList"
 					:key="zindex" 
@@ -75,14 +87,21 @@
 						<view>{{ item.isSpecialName }}</view><br>
 						<view class="detail-label">是否有参照对象：</view>
 						<view>{{ item.isRefertoName }}</view><br>
-						<view class="detail-label">设备名称：</view>
-						<view>{{ item.equipName }}</view><br>
+						<view class="detail-label">设备：</view>
+						<button size="mini" @click="openEquipprofilePup(item.equipprofileCodes,item.equipName,item.details)">查看详情</button><br>
 						<view class="detail-label">设备规格：</view>
 						<view>{{ item.equipSpecification }}</view><br>
-						<view class="detail-label">是否更换自身：</view>
-						<view>{{ item.replaceSelfName }}</view><br>
-						<button class="button" type="primary" @click="addMaintainProfile">{{$t("messages.words.text50")}}</button>
+						<button class="button" type="primary" @click="addMaintainProfile(item)">{{$t("messages.words.text50")}}</button>
 					</uni-section>
+				</view>
+			</view>
+		</uni-popup>
+		<!-- 保养设备详情弹出框 -->
+		<uni-popup ref="equipprofileDialog" type="dialog" @maskClick="closeEquipprofilePup">
+			<view class="popup-content popup-content-equipprofile">
+				<uni-title type="h3" :title="maintainDetailSubstance" align="center"/>
+				<view v-for="(item, index) in equipprofilenameList" :key="index">
+					{{item}}
 				</view>
 			</view>
 		</uni-popup>
@@ -92,6 +111,7 @@
 <script>
 	import * as InspectPlanApi from '@/api/pages/inspectplan.js';
 	import * as MaintainPlanApi from '@/api/pages/maintainplan.js'
+	import DateTools from "@/utils/mx-datepicker-dateTools.js"
 	export default {
 		onLoad: function() {},
 		data() {
@@ -117,6 +137,8 @@
 				maintainplanList: [],
 				maintainPlan: {},
 				maintainDetailList: [],
+				equipprofilenameList: [],
+				maintainDetailSubstance: undefined,
 			}
 		},
 		onShow() {
@@ -145,9 +167,30 @@
 			this.getList();
 		},
 		methods: {
-			async handleInspectplan(item) {
+			openSelectPup(item){
 				this.inspectPlan = item;
-				const substanceList = await InspectPlanApi.getInspectSubstanceListByPlanId(item.id);
+				this.$refs.planSelectDialog.open();
+			},
+			closeSelectPup(){
+				this.inspectPlan = {};
+				this.$refs.planSelectDialog.close();
+			},
+			async handleInspectplan(addNum) {
+				const planProfile = await InspectPlanApi.getPlanNewestExecuteTimeByPlanId(this.inspectPlan.id);
+				let nowNum = 0;
+				if(planProfile.data === null || planProfile.data === '' || planProfile.data === undefined){
+					if(addNum === 0){
+						this.$modal.showToast('该计划无上一轮');
+						return;
+					}else{
+						nowNum = addNum;
+					}
+				}else{
+					nowNum = addNum + planProfile.data.planExecuteCount;
+				}
+				this.$set(this.inspectPlan,'planExecuteCount',nowNum);
+				this.$set(this.inspectPlan,'planStartTime', addNum === 0 ? DateTools.format(new Date(planProfile.data.inspectionDate),"yyyy-mm-dd hh:ii:ss") : '新一轮计划执行，暂无执行时间')
+				const substanceList = await InspectPlanApi.getInspectSubstanceListByPlanId(this.inspectPlan.id);
 				this.inspectplanSubstanceList = substanceList.data;
 				this.$refs.inspectPlanPopup.open('left');
 			},
@@ -171,8 +214,24 @@
 				this.maintainDetailList = maintaindetailRes.data;
 				this.$refs.maintainPlanPopup.open('left');
 			},
-			addMaintainProfile(){
+			openEquipprofilePup(codes,name,detail){
+				this.equipprofilenameList = [];
+				this.maintainDetailSubstance = undefined;
+				const codeList = codes.split("-_-");
+				codeList.forEach(c => {
+					this.equipprofilenameList.push(c+name);
+				})
+				this.maintainDetailSubstance = detail;
+				this.$refs.equipprofileDialog.open();
+			},
+			closeEquipprofilePup(){
+				this.$refs.equipprofileDialog.close();
+			},
+			addMaintainProfile(maintainDetail){
 				this.$modal.showToast('模块建设中~')
+				uni.setStorageSync("maintainPlan",this.maintainPlan);
+				uni.setStorageSync("maintainDetail",maintainDetail);
+				this.$tab.navigateTo('/pages/oam/maintainProfileForm');
 			}
 		}
 	}
@@ -274,5 +333,22 @@
 	font-weight: bold; /* 字体加粗 */
 	font-family: "KaiTi", "楷体", serif; /* 设置楷体字体 */
 	font-size: 18px; /* 假设普通的view字号是14px，这里比普通view大4px */
+  }
+  
+  .popup-content {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    text-align: center;
+	width: 50vw;
+	margin: 0 auto;
+  }
+  
+  .popup-content.popup-content-equipprofile {
+	text-align: left;
+	width: 77vw;
+  }
+  .popup-content.popup-content-equipprofile > view {
+    margin-bottom: 10px; /* 每行间距 */
   }
 </style>

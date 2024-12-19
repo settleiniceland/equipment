@@ -38,9 +38,8 @@ public class AppEquipmentprofileController {
                                                                               @RequestParam(value = "equipId",required = false) String equipId) {
         EquipmentprofileListReqVO reqVO = new EquipmentprofileListReqVO();
         reqVO.setLocationId(locationId);
-//        reqVO.setEquipId(equipId);
+        reqVO.setEquipId(equipId);
         List<EquipmentprofileDO> list = equipmentprofileService.getEquipmentprofileList(reqVO);
-
         return success(BeanUtils.toBean(list, EquipmentprofileRespVO.class));
     }
 }

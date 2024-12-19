@@ -5,6 +5,7 @@ import cn.newness.imip.module.oam.controller.admin.inspectionprofile.vo.*;
 import cn.newness.imip.module.oam.dal.dataobject.inspectionprofile.InspectionProfileDO;
 import cn.newness.imip.framework.common.pojo.PageResult;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -60,4 +61,13 @@ public interface InspectionProfileService {
     * @Return void
     */
     void addProfileList(List<InspectionProfileSaveReqVO> profileVOList);
+    /**
+    * 根据计划Id获取该计划最新轮次首次录入的信息
+    *
+    * @param [planId]
+    * @author machuran
+    * @date 2024-11-15
+    * @Return InspectionProfileRespVO
+    */
+    InspectionProfileRespVO getPlanNewestExecuteTime(String planId);
 }

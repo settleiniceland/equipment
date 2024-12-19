@@ -26,4 +26,6 @@ public class InspectionSubstanceSaveReqVO {
     @Schema(description = "点检内容")
     private String details;
 
+    @Schema(description = "点检标准")
+    private String standard;
 }

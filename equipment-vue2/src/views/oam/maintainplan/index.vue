@@ -13,6 +13,15 @@
           <el-option v-for="dict in statusDictDatas" :key="parseInt(dict.value)" :label="dict.label" :value="parseInt(dict.value)"/>
         </el-select>
       </el-form-item>
+      <el-form-item label="区域" prop="equiplocationId">
+        <TreeSelect
+          v-model="queryParams.equiplocationId"
+          :options="installlocationTree"
+          :normalizer="normalizer1"
+          placeholder="请选择位置"
+          class="treeSelectCSS"
+        />
+      </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="queryParams.remark" placeholder="请输入备注" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
@@ -38,6 +47,7 @@
       <el-table-column label="计划名称" align="center" prop="name" />
       <el-table-column label="执行部门" align="center" prop="executeDeptName" />
       <el-table-column label="计划状态" align="center" prop="statusName" />
+      <el-table-column label="执行区域" align="center" prop="equiplocationName" />
       <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="创建者" align="center" prop="creator" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -75,9 +85,11 @@
 import * as MaintainPlanApi from '@/api/oam/maintainplan';
 import MaintainPlanForm from './MaintainPlanForm.vue';
 import MaintainPlanDetail from './MaintainPlanDetail.vue';
+import * as InstalllocationApi from '@/api/property/installlocation';
+import TreeSelect from "@riophae/vue-treeselect";
 export default {
   name: "MaintainPlan",
-  components: {MaintainPlanForm,MaintainPlanDetail},
+  components: {MaintainPlanForm,MaintainPlanDetail,TreeSelect},
   data() {
     return {
       // 遮罩层
@@ -109,11 +121,13 @@ export default {
       statusDictDatas: [
         {value:0,label: this.$t("message.Button.normal")},
         {value:1,label: this.$t("message.Button.disable")}
-      ]
+      ],
+      installlocationTree:[],//设备安装位置树形结构
     };
   },
   created() {
     this.getList();
+    this.getAllTreeOrList();
   },
   methods: {
     /** 查询列表 */
@@ -127,6 +141,11 @@ export default {
         this.loading = false;
       }
     },
+    async getAllTreeOrList() {
+      this.installlocationTree = [];
+      const InstalllocationRes = await InstalllocationApi.getInstalllocationList();
+      this.installlocationTree = this.handleTreeForString(InstalllocationRes.data,'id','supId');//构建设备位置树
+    },
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNo = 1;
@@ -136,6 +155,10 @@ export default {
     resetQuery() {
       this.resetForm("queryForm");
       this.handleQuery();
+    },
+    /** 转换设备类型数据结构 */
+    normalizer1(node){
+      return this.myNormalizer(node,"id","name");
     },
     /** 添加/修改操作 */
     openForm(id) {

@@ -46,6 +46,14 @@ public class MaintainPlanRespVO {
     @ExcelProperty("计划状态")
     private String statusName;
 
+    @Schema(description = "设备区域id", requiredMode = Schema.RequiredMode.REQUIRED, example = "8544")
+    @ExcelIgnore
+    private String equiplocationId;
+
+    @Schema(description = "设备区域名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
+    @ExcelProperty("设备区域名称")
+    private String equiplocationName;
+
     @Schema(description = "备注", example = "你说的对")
     @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
     @ColumnWidth(30)

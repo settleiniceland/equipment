@@ -30,6 +30,12 @@ public class MaintainPlanPageReqVO extends PageParam {
     @Schema(description = "计划状态【字典：0正常；1禁用】", example = "2")
     private Integer status;
 
+    @Schema(description = "设备区域id", example = "8544")
+    private String equiplocationId;
+
+    @Schema(description = "设备区域名称", example = "王五")
+    private String equiplocationName;
+
     @Schema(description = "备注", example = "你说的对")
     private String remark;
 

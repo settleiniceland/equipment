@@ -28,6 +28,9 @@ public interface InspectplanMapper extends BaseMapperX<InspectplanDO> {
                 .likeIfPresent(InspectplanDO::getName, reqVO.getName())
                 .eqIfPresent(InspectplanDO::getEquiplocationId, reqVO.getEquiplocationId())
                 .likeIfPresent(InspectplanDO::getEquiplocationName, reqVO.getEquiplocationName())
+                .likeIfPresent(InspectplanDO::getEquiplocationDutyName, reqVO.getEquiplocationDutyName())
+                .eqIfPresent(InspectplanDO::getEquipId, reqVO.getEquipId())
+                .likeIfPresent(InspectplanDO::getEquipName, reqVO.getEquipName())
                 .eqIfPresent(InspectplanDO::getDetail, reqVO.getDetail())
                 .orderByDesc(InspectplanDO::getId));
     }

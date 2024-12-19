@@ -29,7 +29,6 @@ public interface MaintainProfileMapper extends BaseMapperX<MaintainProfileDO> {
                 .likeIfPresent(MaintainProfileDO::getEquipmentprofileCode, reqVO.getEquipmentprofileCode())
                 .likeIfPresent(MaintainProfileDO::getEquipName, reqVO.getEquipName())
                 .eqIfPresent(MaintainProfileDO::getMaintainCycle, reqVO.getMaintainCycle())
-                .eqIfPresent(MaintainProfileDO::getReplaceSelf, reqVO.getReplaceSelf())
                 .eqIfPresent(MaintainProfileDO::getResultPhotos, reqVO.getResultPhotos())
                 .betweenIfPresent(MaintainProfileDO::getMaintainDate, reqVO.getMaintainDate())
                 .eqIfPresent(MaintainProfileDO::getExecuteDeptId, reqVO.getExecuteDeptId())

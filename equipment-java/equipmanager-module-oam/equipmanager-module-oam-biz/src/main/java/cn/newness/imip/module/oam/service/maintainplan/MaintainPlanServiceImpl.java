@@ -1,6 +1,10 @@
 package cn.newness.imip.module.oam.service.maintainplan;
 
+import cn.newness.imip.module.oam.dal.dataobject.maintaindetail.MaintainDetailDO;
+import cn.newness.imip.module.oam.dal.mysql.maintaindetail.MaintainDetailMapper;
 import cn.newness.imip.module.oam.service.MaintainDetailService;
+import cn.newness.imip.module.property.api.LocationApi;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -28,12 +32,17 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
     private MaintainPlanMapper maintainPlanMapper;
     @Resource
     private MaintainDetailService maintainDetailService;
+    @Resource
+    private MaintainDetailMapper maintainDetailMapper;
+    @Resource
+    private LocationApi locationApi;
 
     @Override
     public String createMaintainPlan(MaintainPlanSaveReqVO createReqVO) {
         createReqVO.setId(BeanUtils.createId());
         // 插入
         MaintainPlanDO maintainPlan = BeanUtils.toBean(createReqVO, MaintainPlanDO.class);
+        maintainPlan.setEquiplocationName(locationApi.getCompleteLocationName(createReqVO.getEquiplocationId()));
         maintainPlanMapper.insert(maintainPlan);
         // 返回
         return maintainPlan.getId();
@@ -42,8 +51,23 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
     @Override
     public void updateMaintainPlan(MaintainPlanSaveReqVO updateReqVO) {
         // 校验存在
-        validateMaintainPlanExists(updateReqVO.getId());
+        MaintainPlanDO oldMaintainPlanDO = validateMaintainPlanExists(updateReqVO.getId());
+        // 判断是否有内容，有内容就不能再修改地址了，且对应的内容对象计划名称属性也要连带修改
+        if(maintainDetailMapper.selectCount("equip_maintain_plan_id",updateReqVO.getId())>0){
+            if(!updateReqVO.getEquiplocationId().equals(oldMaintainPlanDO.getEquiplocationId())){
+                throw exception(MAINTAIN_PLAN_UPDATE_ERROR);
+            }else if(!updateReqVO.getName().equals(oldMaintainPlanDO.getName())){
+                LambdaUpdateChainWrapper<MaintainDetailDO> maintainDetailDOLambdaUpdateChainWrapper=new LambdaUpdateChainWrapper<>(maintainDetailMapper);
+                maintainDetailDOLambdaUpdateChainWrapper
+                        .eq(MaintainDetailDO::getEquipMaintainPlanId,updateReqVO.getId())
+                        .set(MaintainDetailDO::getEquipMaintainPlanName,updateReqVO.getName())
+                        .update();
+            }
+        }
         // 更新
+        if(!oldMaintainPlanDO.getEquiplocationId().equals(updateReqVO.getEquiplocationId())){
+            updateReqVO.setEquiplocationName(locationApi.getCompleteLocationName(updateReqVO.getEquiplocationId()));
+        }
         MaintainPlanDO updateObj = BeanUtils.toBean(updateReqVO, MaintainPlanDO.class);
         maintainPlanMapper.updateById(updateObj);
     }

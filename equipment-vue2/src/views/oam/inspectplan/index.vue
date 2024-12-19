@@ -24,6 +24,11 @@
           class="treeSelectCSS"
         />
       </el-form-item>
+      <el-form-item label="设备" prop="equipId">
+        <el-select v-model="queryParams.equipId" placeholder="请选择设备" clearable size="small">
+          <el-option v-for="equip in equipList" :key="equip.id" :label="equip.equipName" :value="equip.id"/>
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="handleQuery">{{ $t("message.Button.search") }}</el-button>
         <el-button icon="el-icon-refresh" @click="resetQuery">{{ $t("message.Button.origin") }}</el-button>
@@ -53,6 +58,7 @@
         </template>
       </el-table-column>
       <el-table-column label="区域" align="center" prop="equiplocationName" show-overflow-tooltip />
+      <el-table-column label="设备" align="center" prop="equipName" show-overflow-tooltip />
       <el-table-column label="备注" align="center" prop="detail" show-overflow-tooltip />
       <el-table-column :label='$t("message.Button.creator")' align="center" prop="creator" />
       <el-table-column :label='$t("message.Button.createTime")' align="center" prop="createTime" width="180">
@@ -68,7 +74,7 @@
       </el-table-column>
       <el-table-column :label='$t("message.Button.operation")' align="center" class-name="small-padding fixed-width">
         <template v-slot="scope">
-          <el-button size="mini" type="text" icon="el-icon-notebook-1" @click="openDetailForm(scope.row.id,scope.row.name)"
+          <el-button size="mini" type="text" icon="el-icon-notebook-1" @click="openDetailForm(scope.row.id,scope.row.name,scope.row.equipId)"
                      v-hasPermi="['oam:inspectplan:update']">计划内容</el-button>
           <el-button size="mini" type="text" icon="el-icon-edit" @click="openForm(scope.row.id)"
                      v-hasPermi="['oam:inspectplan:update']">修改基本信息</el-button>
@@ -89,6 +95,7 @@
 <script>
   import * as InspectplanApi from '@/api/oam/inspectplan';
   import * as InstalllocationApi from '@/api/property/installlocation';
+  import * as EquipApi from '@/api/property/equip';
   import InspectplanForm from './InspectplanForm.vue';
   import InspectplanDetail from './InspectplanDetail.vue';
   import TreeSelect from "@riophae/vue-treeselect";
@@ -125,6 +132,7 @@
           name: null,
           equiplocationId: null,
           equiplocationName: null,
+          equipId: null,
           detail: null,
         },
         //固定点检计划状态；1启用，2禁用
@@ -140,6 +148,7 @@
           {value:4,label:'拆检'}
         ],
         installlocationTree:[],//设备安装位置树形结构
+        equipList: [],//设备待选列表
       };
     },
     created() {
@@ -209,10 +218,13 @@
         this.installlocationTree = [];
         const InstalllocationRes = await InstalllocationApi.getInstalllocationList();
         this.installlocationTree = this.handleTreeForString(InstalllocationRes.data,'id','supId');//构建设备位置树
+        this.equipList = [];
+        const equipRes = await EquipApi.getEquipList({equipAttribute: 2,});
+        this.equipList = equipRes.data;
       },
       /** 进入计划内容 */
-      openDetailForm(id,name) {
-        this.$refs["tableDetail"].open(id,name);
+      openDetailForm(id,name,equipId) {
+        this.$refs["tableDetail"].open(id,name,equipId);
       },
       /** 计划状态更改 */
       async handleStatusChange(row){

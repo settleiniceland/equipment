@@ -22,6 +22,9 @@ public class InspectionProfilePageReqVO extends PageParam {
     @Schema(description = "点检计划id", example = "15588")
     private String inspectionPlanId;
 
+    @Schema(description = "计划执行次数", example = "15588")
+    private Integer planExecuteCount;
+
     @Schema(description = "点检内容id", example = "29138")
     private String inspectionDetailId;
 

@@ -1,5 +1,6 @@
 package cn.newness.imip.module.oam.service.inspectionprofile;
 
+import cn.newness.imip.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.newness.imip.module.oam.controller.admin.statusrecord.vo.StatusRecordSaveReqVO;
 import cn.newness.imip.module.oam.dal.dataobject.flaws.FlawsDO;
 import cn.newness.imip.module.oam.dal.dataobject.statusrecord.StatusRecordDO;
@@ -126,7 +127,7 @@ public class InspectionProfileServiceImpl implements InspectionProfileService {
         List<StatusRecordSaveReqVO> statusRecordSaveReqVOList=new ArrayList<>();//盛放停机记录
         profileVOList.forEach(profile -> {
             profile.setId(BeanUtils.createId());
-            if(profile.getResult()==1){//如果点检结果正常的话前端就不会传来是否停机值，这里直接设置为开机
+            if(profile.getResult()==1){//如果点检结果正常的话不可能需要停机，这里直接设置为开机
                 profile.setIsStop(1);
             }else if(profile.getResult()==2){//如果结果异常的话就直接添加到缺陷库
                 //缺陷库
@@ -143,6 +144,7 @@ public class InspectionProfileServiceImpl implements InspectionProfileService {
                 flawsDOList.add(flawsDO);
             }
             if(profile.getResult()==2 && profile.getIsStop()==2){
+                /* 原先的设计是点检对象可能是设备组，设备或设备组件，现改为只有设备，这个代码功能依旧正常，就不做修改了 */
                 if(profile.getEquipAttribute()==1){//设备组将下面所有单体设备都停机了
                     List<EquipmentProfileDto> equipmentProfileDtos = equipmentProfileApi.getAllAttribute2EquipmentProfileDtoSons(profile.getEquipProfileId());
                     equipProfileList.addAll(equipmentProfileDtos.stream().map(EquipmentProfileDto::getId).collect(Collectors.toList()));
@@ -220,5 +222,18 @@ public class InspectionProfileServiceImpl implements InspectionProfileService {
             flawsMapper.insertBatch(flawsDOList);
         }
         inspectionProfileMapper.insertBatch(BeanUtils.toBean(profileVOList, InspectionProfileDO.class));
+    }
+
+    @Override
+    public InspectionProfileRespVO getPlanNewestExecuteTime(String planId) {
+        LambdaQueryWrapperX<InspectionProfileDO> queryWrapper = new LambdaQueryWrapperX<>();
+        queryWrapper.eq(InspectionProfileDO::getInspectionPlanId, planId)
+                .orderByDesc(InspectionProfileDO::getPlanExecuteCount)
+                .orderByAsc(InspectionProfileDO::getInspectionDate);
+        List<InspectionProfileDO> inspectionProfileDOS = inspectionProfileMapper.selectList(queryWrapper);
+        if(inspectionProfileDOS.size()==0){
+            return null;
+        }
+        return BeanUtils.toBean(inspectionProfileDOS.get(0), InspectionProfileRespVO.class);
     }
 }

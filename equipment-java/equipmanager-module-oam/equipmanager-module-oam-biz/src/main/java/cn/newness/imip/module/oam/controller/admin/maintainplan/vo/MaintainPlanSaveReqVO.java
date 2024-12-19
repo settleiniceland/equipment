@@ -28,6 +28,13 @@ public class MaintainPlanSaveReqVO {
     @NotNull(message = "计划状态【字典：0正常；1禁用】不能为空")
     private Integer status;
 
+    @Schema(description = "设备区域id", requiredMode = Schema.RequiredMode.REQUIRED, example = "8544")
+    @NotEmpty(message = "设备区域id不能为空")
+    private String equiplocationId;
+
+    @Schema(description = "设备区域名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
+    private String equiplocationName;
+
     @Schema(description = "备注", example = "你说的对")
     private String remark;
 

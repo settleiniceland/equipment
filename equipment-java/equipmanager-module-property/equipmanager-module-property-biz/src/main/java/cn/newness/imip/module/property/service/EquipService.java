@@ -58,4 +58,13 @@ public interface EquipService {
     * @Return java.util.List<cn.newness.imip.module.property.controller.admin.equip.vo.EquipRespVO>
     */
     List<EquipRespVO> getEquipListForExcel(EquipListReqVO listReqVO);
+    /**
+    * 获取设备的全层级名
+    *
+    * @param [id]
+    * @author machuran
+    * @date 2024.11.19
+    * @Return java.lang.String
+    */
+    String getCompleteEquipName(String id);
 }

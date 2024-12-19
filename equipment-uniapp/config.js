@@ -1,7 +1,7 @@
 // 应用全局配置
 module.exports = {
-  baseUrl: 'http://192.168.137.34:48080',
-  // baseUrl: 'http://localhost:48080',
+  // baseUrl: 'http://192.168.137.42:48080',
+  baseUrl: 'http://localhost:48080',
   baseApi: '/app-api',
   // 应用信息
   appInfo: {

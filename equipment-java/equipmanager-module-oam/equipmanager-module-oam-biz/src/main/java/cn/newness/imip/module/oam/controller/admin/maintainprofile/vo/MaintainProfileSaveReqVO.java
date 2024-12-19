@@ -51,10 +51,6 @@ public class MaintainProfileSaveReqVO {
     @NotNull(message = "保养周期不能为空")
     private BigDecimal maintainCycle;
 
-    @Schema(description = "是否更换自身【字典：0否；1是】", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "是否更换自身【字典：0否；1是】不能为空")
-    private Integer replaceSelf;
-
     @Schema(description = "保养图片【地址，中间以-_-隔开】")
     private String resultPhotos;
 

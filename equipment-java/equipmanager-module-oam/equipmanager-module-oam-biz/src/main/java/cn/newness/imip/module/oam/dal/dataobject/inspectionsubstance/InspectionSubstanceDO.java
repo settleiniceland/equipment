@@ -46,6 +46,10 @@ public class InspectionSubstanceDO extends
      */
     private String details;
     /**
+     * 点检标准
+     */
+    private String standard;
+    /**
      * 备用字段1
      */
     private String sBackup01;

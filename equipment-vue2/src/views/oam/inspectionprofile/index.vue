@@ -8,7 +8,10 @@
         </el-select>
       </el-form-item>
       <el-form-item label="周期" prop="inspectionCycle">
-        <el-input v-model="queryParams.inspectionCycle" placeholder="请输入点检周期【单位:h】" clearable/>
+        <el-input type="number" v-model="queryParams.inspectionCycle" placeholder="请输入点检周期【单位:h】" clearable/>
+      </el-form-item>
+      <el-form-item label="执行次序" prop="planExecuteCount">
+        <el-input type="number" v-model="queryParams.planExecuteCount" placeholder="请输入执行次序" clearable/>
       </el-form-item>
       <el-form-item label="点检内容" prop="inspectionDetail">
         <el-input v-model="queryParams.inspectionDetail" placeholder="请输入点检内容" clearable/>
@@ -75,6 +78,7 @@
 
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true" border>
       <el-table-column label="点检计划名称" align="center" prop="inspectionPlanName" />
+      <el-table-column label="执行次序" align="center" prop="planExecuteCount" />
       <el-table-column label="点检类型" align="center" prop="inspectionTypeName" />
       <el-table-column label="点检周期【单位h】" align="center" prop="inspectionCycle" />
       <el-table-column label="设备区域名称" align="center" prop="equiplocationName" />
@@ -165,6 +169,7 @@ export default {
         pageSize: 10,
         inspectionPlanId: null,
         inspectionDetail: null,
+        planExecuteCount: null,
         equipCode: null,
         result: null,
         isStop: null,

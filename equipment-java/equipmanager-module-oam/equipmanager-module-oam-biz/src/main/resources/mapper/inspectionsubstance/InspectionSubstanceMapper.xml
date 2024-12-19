@@ -13,7 +13,7 @@
         <result property="updateTime" column="update_time"/>
     </resultMap>
     <sql id="selectAllSubstanceByRespVO">
-        SELECT sub.id,sub.equip_id,sub.equip_name,sub.equip_specification,sub.details,sub.creator,sub.create_time,sub.updater,sub.update_time
+        SELECT sub.id,sub.equip_id,sub.equip_name,sub.equip_specification,sub.details,sub.standard,sub.creator,sub.create_time,sub.updater,sub.update_time
         FROM equip_inspection_substance as sub
     </sql>
     <sql id="selectAllSubstanceCountByRespVO">

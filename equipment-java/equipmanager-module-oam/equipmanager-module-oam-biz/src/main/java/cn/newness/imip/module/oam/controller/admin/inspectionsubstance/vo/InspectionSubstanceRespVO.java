@@ -39,6 +39,12 @@ public class InspectionSubstanceRespVO {
     @ColumnWidth(30)
     private String details;
 
+    @Schema(description = "点检标准")
+    @ExcelProperty("点检标准")
+    @ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER)
+    @ColumnWidth(30)
+    private String standard;
+
     @Schema(description = "创建者", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelIgnore
     private String creator;

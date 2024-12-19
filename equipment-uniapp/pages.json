@@ -39,6 +39,9 @@
     }
   }, {
     "path": "pages/oam/inspectProfileForm"
+  },
+  {
+  	"path" : "pages/oam/maintainProfileForm"
   }],
   "tabBar": {
     "color": "#000000",

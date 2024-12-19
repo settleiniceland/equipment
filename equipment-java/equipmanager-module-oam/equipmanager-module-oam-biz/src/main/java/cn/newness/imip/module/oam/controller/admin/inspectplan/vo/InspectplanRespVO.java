@@ -36,12 +36,24 @@ public class InspectplanRespVO {
     private String name;
 
     @Schema(description = "设备区域id", requiredMode = Schema.RequiredMode.REQUIRED, example = "8544")
-    @ExcelProperty("设备区域id")
+    @ExcelIgnore
     private String equiplocationId;
 
     @Schema(description = "设备区域名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
     @ExcelProperty("设备区域名称")
     private String equiplocationName;
+
+    @Schema(description = "设备区域负责人", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
+    @ExcelProperty("设备区域负责人")
+    private String equiplocationDutyName;
+
+    @Schema(description = "设备id")
+    @ExcelIgnore
+    private String equipId;
+
+    @Schema(description = "设备名称")
+    @ExcelProperty("设备名称")
+    private String equipName;
 
     @Schema(description = "备注")
     @ExcelProperty("备注")

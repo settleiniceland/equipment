@@ -208,10 +208,6 @@ debug: false
 jeecg:
   jmreport:
     saas-mode: tenant
-
-# 临时文件存放目录
-temporary:
-  directory: D:\User\Music\Cache
 # 启动容器对象全展示
 management:
   endpoints:

@@ -3,7 +3,7 @@
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="60%" v-dialogDrag append-to-body>
       <!-- 搜索栏 -->
       <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" label-width="68px">
-        <el-form-item label="设备" prop="equipId">
+        <!-- <el-form-item label="设备" prop="equipId">
           <TreeSelect
             v-model="queryParams.equipId"
             :options="equipTree"
@@ -11,7 +11,7 @@
             placeholder="请选择设备"
             class="treeSelectCSS"
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="点检内容" prop="details">
           <el-input v-model="queryParams.details" placeholder="请输入点检内容" clearable @keyup.enter.native="handleQuery"/>
         </el-form-item>
@@ -36,6 +36,7 @@
         <el-table-column label="设备名称" align="center" prop="equipName"  width="180"/>
         <el-table-column label="设备规格" align="center" prop="equipSpecification" show-overflow-tooltip/>
         <el-table-column label="点检内容" align="center" prop="details" width="180"/>
+        <el-table-column label="点检标准" align="center" prop="standard" width="180"/>
         <el-table-column :label='$t("message.Button.creator")' align="center" prop="creator" show-overflow-tooltip />
         <el-table-column :label='$t("message.Button.createTime")' align="center" prop="createTime"show-overflow-tooltip >
           <template v-slot="scope">
@@ -94,20 +95,21 @@
           equipId: null,
           details: null,
         },
-        equipTree: [], // 设备树形结构
+        // equipTree: [], // 设备树形结构
       };
     },
     props: {
 
     },
     methods: {
-      async open(id,name){
+      async open(id,name,equipId){
         this.reset();
         this.queryParams.planId = id;
         this.queryParams.planName = name;
+        this.queryParams.equipId = equipId;
         this.dialogVisible = true;
         this.dialogTitle = "点检计划《" + name + "》内容详情";
-        this.getAllTree();
+        // this.getAllTree();
         this.getList();
       },
       async getList(){
@@ -125,12 +127,12 @@
         return this.myNormalizer(node,'id','equipName');
       },
       /** 获取所有所需要的树形结构 */
-      async getAllTree(){
-        //设备树型结构
-        this.equipTree = [];
-        const equipRes = await EquipApi.getEquipList();
-        this.equipTree = this.handleTreeForString(equipRes.data,'id','supId');
-      },
+      // async getAllTree(){
+      //   //设备树型结构
+      //   this.equipTree = [];
+      //   const equipRes = await EquipApi.getEquipList();
+      //   this.equipTree = this.handleTreeForString(equipRes.data,'id','supId');
+      // },
        /** 搜索按钮操作 */
        handleQuery() {
         this.queryParams.pageNo = 1;
@@ -143,7 +145,7 @@
       },
       /** 添加/修改操作 */
       openForm() {
-        this.$refs["tableDetailAdd"].open(this.queryParams.planId,this.queryParams.planName);
+        this.$refs["tableDetailAdd"].open(this.queryParams.planId,this.queryParams.planName,this.queryParams.equipId);
       },
       /** 初始化查询数据 */
       reset(){
